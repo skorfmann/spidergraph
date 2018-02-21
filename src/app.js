@@ -13,13 +13,13 @@ import {
   makeExecutableSchema,
   addErrorLoggingToSchema,
   mergeSchemas
-} from 'graphql-tools';
+} from "graphql-tools";
 import { readFileSync } from 'fs-extra';
 import { resolve } from 'path';
 import {
   addDirectiveResolveFunctionsToSchema
 } from "graphql-directive";
-import mappers from './mappers'
+import addMapperFunctionsToSchema from "./mappers";
 import directives from './directives';
 import urlLoader from './browser'
 import { queryDirectiveResolver } from './queryDirectives'
@@ -32,17 +32,6 @@ const resolvers = {
     realEstate: (root, args, context) => {
       return [{title: 'yeah', rent: {}, sale: {}}];
     },
-  },
-  PropertyRent: {
-    basePrice: (root, args, context, info) => {
-      return new mappers[info.returnType]("123 Euro;");
-    }
-  },
-
-  PropertySale: {
-    basePrice: (root, args, context, info) => {
-      return new mappers[info.returnType]("123 Euro;");
-    }
   },
   Property: {
     __resolveType(obj, context, info) {
@@ -57,6 +46,7 @@ const schema = makeExecutableSchema({
 });
 
 addDirectiveResolveFunctionsToSchema(schema, directives)
+addMapperFunctionsToSchema(schema)
 
 const app = express();
 app.disable('x-powered-by');
