@@ -88,9 +88,12 @@ app.use(
   bodyParser.json(),
   queryDirectiveMiddleware,
   async (request, response, next) => {
-    const page = await urlLoader
-      .then(browser => browser.load(response.locals.queryDirectiveContext.testPageUrl))
-      .then(page => page);
+    let page;
+    if (response.locals.queryDirectiveContext && response.locals.queryDirectiveContext.testPageUrl) {
+      page = await urlLoader
+        .then(browser => browser.load(response.locals.queryDirectiveContext.testPageUrl))
+        .then(page => page);
+    }
     return graphqlExpress({
       schema,
       context: Object.assign(
