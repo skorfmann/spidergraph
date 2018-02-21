@@ -72,7 +72,7 @@ const queryDirectiveMiddleware = async (request, response, next) => {
       const documentAST = await parse(source);
       const resolver = queryDirectiveResolver(documentAST.definitions[0], directives, schema)
       const result = await resolver(Promise.resolve, {}, localContext);
-      request._queryDirectiveContext = localContext
+      response.locals.queryDirectiveContext = localContext;
     } catch (syntaxError) {
       console.log('syntax error in query parser', syntaxError)
       response.statusCode = 400;
@@ -87,11 +87,16 @@ app.use(
   bodyParser.json(),
   queryDirectiveMiddleware,
   async (request, response, next) => {
-    console.log(request._queryDirectiveContext);
     const page = await urlLoader
-      .then(browser => browser.load(request._queryDirectiveContext.testPageUrl))
+      .then(browser => browser.load(response.locals.queryDirectiveContext.testPageUrl))
       .then(page => page);
-    return graphqlExpress({ schema, context: Object.assign({page}, request._queryDirectiveContext)})(request, response, next)
+    return graphqlExpress({
+      schema,
+      context: Object.assign(
+        { page },
+        response.locals.queryDirectiveContext
+      )
+    })(request, response, next);
   }
 );
 app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
