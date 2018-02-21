@@ -52,9 +52,7 @@ function getDirectiveInfo(directive, resolverMap, schema, location) {
 }
 
 function queryDirectiveResolver(query, resolverMap, schema) {
-  console.log(query)
   const { directives } = query;
-  console.log("directives", directives);
   if (!directives.length) return;
   return directives.reduce((recursiveResolver, directive) => {
     const directiveInfo = getDirectiveInfo(

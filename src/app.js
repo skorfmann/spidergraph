@@ -1,5 +1,6 @@
 import express from 'express';
-import logger from 'morgan';
+import morgan from 'morgan';
+import logger from './logger'
 import bodyParser from 'body-parser';
 import { getGraphQLParams } from 'express-graphql'
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
@@ -60,9 +61,7 @@ addDirectiveResolveFunctionsToSchema(schema, directives)
 const app = express();
 app.disable('x-powered-by');
 
-app.use(logger('dev', {
-  skip: () => app.get('env') === 'test'
-}));
+app.use(morgan('combined', { stream: logger.stream }));
 
 const queryDirectiveMiddleware = async (request, response, next) => {
   await getGraphQLParams(request).then(async graphQLParams => {
@@ -70,11 +69,13 @@ const queryDirectiveMiddleware = async (request, response, next) => {
     try {
       let localContext = {};
       const documentAST = await parse(source);
-      const resolver = queryDirectiveResolver(documentAST.definitions[0], directives, schema)
+      const resolver = queryDirectiveResolver(documentAST.definitions[0], directives, schema);
+      if (!resolver) return;
       const result = await resolver(Promise.resolve, {}, localContext);
+      logger.debug('Context provided by Query directives:', JSON.stringify(localContext));
       response.locals.queryDirectiveContext = localContext;
     } catch (syntaxError) {
-      console.log('syntax error in query parser', syntaxError)
+      logger.error('Syntax error in query parser', syntaxError)
       response.statusCode = 400;
       return { errors: [syntaxError] };
     }
