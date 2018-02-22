@@ -11,7 +11,7 @@ const DirectiveLocation =
 const BUILT_IN_DIRECTIVES = ["deprecated", "skip", "include"];
 
 function getFieldResolver(field) {
-  const resolver = field.resolve || (() => {});
+  const resolver = field.resolve || (() => ({}));
   return resolver.bind(field);
 }
 

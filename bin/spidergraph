@@ -1,0 +1,8 @@
+#!/usr/bin/env babel-node --
+
+var program = require('commander');
+
+program
+  .version("0.0.1")
+  .command("scrape <path>", "Extracts data from a given URL.")
+  .parse(process.argv);

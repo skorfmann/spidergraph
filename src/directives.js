@@ -9,15 +9,15 @@ const resolverMap = {
   },
 
   async testPage(resolve, _, { url }, context) {
-    context.testPageUrl = url;
-    const value = await resolve();
-    return value
+    let config = await resolve();
+    config.testPageUrl = url;
+    return config
   },
 
-  async match(resolve, _, { host, path }, context) {
-    context.pageMatch = { host, path };
-    const value = await resolve();
-    return value
+  async match(resolve, _, { url }, context) {
+    let config = await resolve();
+    config.match = { url };
+    return config
   }
 };
 
