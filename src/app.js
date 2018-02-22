@@ -19,7 +19,7 @@ import { resolve } from 'path';
 import {
   addDirectiveResolveFunctionsToSchema
 } from "graphql-directive";
-import addMapperFunctionsToSchema from "./mappers";
+import { addMapperFunctionsToSchema } from "./mappers";
 import directives from './directives';
 import urlLoader from './browser'
 import { queryDirectiveResolver } from './queryDirectives'

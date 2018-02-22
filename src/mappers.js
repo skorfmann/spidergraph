@@ -28,4 +28,4 @@ function addMapperFunctionsToSchema(schema, mappers) {
   });
 }
 
-export default addMapperFunctionsToSchema
+export default {addMapperFunctionsToSchema, mappers}
