@@ -6,7 +6,7 @@ import { Source, parse, getOperationAST } from "graphql"
 import {
   makeExecutableSchema
 } from "graphql-tools";
-import { queryDirectiveResolver } from "./queryDirectives";
+import { queryDirectiveResolver } from "./queryDirectiveResolver";
 import directives from "./directives";
 
 const typeDefs = readFileSync(resolve(process.cwd(), "graphql.sdl")).toString();

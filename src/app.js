@@ -22,7 +22,7 @@ import {
 import { addMapperFunctionsToSchema } from "./mappers";
 import directives from './directives';
 import urlLoader from './browser'
-import { queryDirectiveResolver } from './queryDirectives'
+import { queryDirectiveResolver } from './queryDirectiveResolver'
 
 const typeDefs = readFileSync(resolve(process.cwd(), 'graphql.sdl')).toString();
 
