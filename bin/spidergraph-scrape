@@ -1,14 +1,36 @@
 #!/usr/bin/env babel-node --
 
+import { graphql } from 'graphql'
 import loadQueryStore from "../src/queryStore.js";
+import urlLoader from "../src/browser";
+import schema from "../src/schema";
 import program from 'commander';
 
 const scrape = async (url) => {
-  const queryStore = await loadQueryStore();
-  console.log(JSON.stringify(queryStore))
+  const queryStore = await loadQueryStore(schema);
+  const results = await Promise.all(queryStore.map(async (query) => {
+    const pattern = new RegExp(query.config.match.url);
+    if (!pattern.test(url)) return;
+    const page = await urlLoader
+      .then(browser => browser.load(url))
+      .then(page => page);
+
+    const result = await graphql(schema, query.queryString, {}, {page: page}).then((result) => {
+      return result
+    })
+
+    return {
+      info: {
+        query: query.queryName,
+        url: url
+      },
+      data: result.data
+    }
+  }))
+  console.log(JSON.stringify(results));
 }
 
 program
   .arguments('<url>')
-  .action((url) => (scrape(url)))
+  .action(async (url) => (await scrape(url)))
   .parse(process.argv);
