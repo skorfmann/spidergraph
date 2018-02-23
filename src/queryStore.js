@@ -1,20 +1,11 @@
 import glob from 'glob'
 import { readFileSync } from 'fs';
-import { basename, resolve } from 'path';
+import { basename } from 'path';
 import logger from './logger'
-import { Source, parse, getOperationAST } from "graphql"
-import {
-  makeExecutableSchema
-} from "graphql-tools";
+import { Source, parse } from "graphql"
 import { queryDirectiveResolver } from "./queryDirectiveResolver";
 import { queryDirectives } from "./directives";
-
-const typeDefs = readFileSync(resolve(process.cwd(), "graphql.sdl")).toString();
-const resolvers = {};
-const schema = makeExecutableSchema({
-  typeDefs,
-  resolvers
-});
+import schema from "./schema";
 
 const loadQueryStore = async () => {
   const files = glob.sync(process.env.PWD + "/queries/**/*.gql")

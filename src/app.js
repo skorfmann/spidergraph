@@ -6,47 +6,12 @@ import { getGraphQLParams } from 'express-graphql'
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 import {
   Source,
-  parse,
-  getOperationAST
+  parse
 } from 'graphql'
-import {
-  makeExecutableSchema,
-  addErrorLoggingToSchema,
-  mergeSchemas
-} from "graphql-tools";
-import { readFileSync } from 'fs-extra';
-import { resolve } from 'path';
-import {
-  addDirectiveResolveFunctionsToSchema
-} from "graphql-directive";
-import { addMapperFunctionsToSchema } from "./mappers";
-import { fieldDirectives, queryDirectives } from './directives';
 import urlLoader from './browser'
 import { queryDirectiveResolver } from './queryDirectiveResolver'
-
-const typeDefs = readFileSync(resolve(process.cwd(), 'graphql.sdl')).toString();
-
-// Provide resolver functions for your schema fields
-const resolvers = {
-  Query: {
-    realEstate: (root, args, context) => {
-      return [{title: 'yeah', rent: {}, sale: {}}];
-    },
-  },
-  Property: {
-    __resolveType(obj, context, info) {
-      return 'House';
-    }
-  }
-};
-
-const schema = makeExecutableSchema({
-  typeDefs,
-  resolvers
-});
-
-addDirectiveResolveFunctionsToSchema(schema, fieldDirectives);
-addMapperFunctionsToSchema(schema)
+import { queryDirectives } from "./directives";
+import schema from './schema';
 
 const app = express();
 app.disable('x-powered-by');
@@ -57,13 +22,12 @@ const queryDirectiveMiddleware = async (request, response, next) => {
   await getGraphQLParams(request).then(async graphQLParams => {
     const source = new Source(graphQLParams.query, 'GraphQL request');
     try {
-      let localContext = {};
       const documentAST = await parse(source);
       const resolver = queryDirectiveResolver(documentAST.definitions[0], queryDirectives, schema);
       if (!resolver) return;
-      const result = await resolver(Promise.resolve, {}, localContext);
-      logger.debug('Context provided by Query directives:', JSON.stringify(localContext));
-      response.locals.queryDirectiveContext = localContext;
+      const config = await resolver(Promise.resolve, {}, {});
+      logger.debug("Context provided by Query directives:", JSON.stringify(config));
+      response.locals.queryConfig = config;
     } catch (syntaxError) {
       logger.error('Syntax error in query parser', syntaxError)
       response.statusCode = 400;
@@ -79,17 +43,14 @@ app.use(
   queryDirectiveMiddleware,
   async (request, response, next) => {
     let page;
-    if (response.locals.queryDirectiveContext && response.locals.queryDirectiveContext.testPageUrl) {
+    if (response.locals.queryConfig && response.locals.queryConfig.testPageUrl) {
       page = await urlLoader
-        .then(browser => browser.load(response.locals.queryDirectiveContext.testPageUrl))
+        .then(browser => browser.load(response.locals.queryConfig.testPageUrl))
         .then(page => page);
     }
     return graphqlExpress({
       schema,
-      context: Object.assign(
-        { page },
-        response.locals.queryDirectiveContext
-      )
+      context: Object.assign({ page }, response.locals.queryConfig)
     })(request, response, next);
   }
 );
