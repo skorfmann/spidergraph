@@ -1,5 +1,3 @@
-
-
 query immobilienScout24
   @testPage(url: "https://www.immobilienscout24.de/expose/73098898")
   @match(url: "immobilienscout24.de/expose/\\+d") {
