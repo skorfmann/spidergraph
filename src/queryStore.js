@@ -7,7 +7,7 @@ import {
   makeExecutableSchema
 } from "graphql-tools";
 import { queryDirectiveResolver } from "./queryDirectiveResolver";
-import directives from "./directives";
+import { queryDirectives } from "./directives";
 
 const typeDefs = readFileSync(resolve(process.cwd(), "graphql.sdl")).toString();
 const resolvers = {};
@@ -23,7 +23,7 @@ const loadQueryStore = async () => {
     const source = new Source(queryString, basename(file));
     const queryDocument = await parse(source);
     return await Promise.all(queryDocument.definitions.map(async (definition) => {
-      const resolver = queryDirectiveResolver(definition, directives, schema);
+      const resolver = queryDirectiveResolver(definition, queryDirectives, schema);
       if (!resolver) return;
       const localContext = {};
       const config = await resolver(Promise.resolve, {}, localContext);

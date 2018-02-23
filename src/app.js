@@ -20,7 +20,7 @@ import {
   addDirectiveResolveFunctionsToSchema
 } from "graphql-directive";
 import { addMapperFunctionsToSchema } from "./mappers";
-import directives from './directives';
+import { fieldDirectives, queryDirectives } from './directives';
 import urlLoader from './browser'
 import { queryDirectiveResolver } from './queryDirectiveResolver'
 
@@ -45,7 +45,7 @@ const schema = makeExecutableSchema({
   resolvers
 });
 
-addDirectiveResolveFunctionsToSchema(schema, directives)
+addDirectiveResolveFunctionsToSchema(schema, fieldDirectives);
 addMapperFunctionsToSchema(schema)
 
 const app = express();
@@ -59,7 +59,7 @@ const queryDirectiveMiddleware = async (request, response, next) => {
     try {
       let localContext = {};
       const documentAST = await parse(source);
-      const resolver = queryDirectiveResolver(documentAST.definitions[0], directives, schema);
+      const resolver = queryDirectiveResolver(documentAST.definitions[0], queryDirectives, schema);
       if (!resolver) return;
       const result = await resolver(Promise.resolve, {}, localContext);
       logger.debug('Context provided by Query directives:', JSON.stringify(localContext));
