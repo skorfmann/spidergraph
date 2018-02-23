@@ -11,14 +11,14 @@ const DirectiveLocation =
 const BUILT_IN_DIRECTIVES = ["deprecated", "skip", "include"];
 
 function getFieldResolver(field) {
-  const resolver = field.resolve || (() => {});
+  const resolver = field.resolve || (() => ({}));
   return resolver.bind(field);
 }
 
 function createAsyncResolver(field) {
   const originalResolver = getFieldResolver(field);
-  return async (source, args, context, info) =>
-    originalResolver(source, args, context, info);
+  return async (args, context, info) =>
+    originalResolver(args, context, info);
 }
 
 function getDirectiveInfo(directive, resolverMap, schema, location) {
@@ -61,10 +61,9 @@ function queryDirectiveResolver(query, resolverMap, schema) {
       schema,
       DirectiveLocation.QUERY
     );
-    return (source, args, context, info) =>
+    return (args, context, info) =>
       directiveInfo.resolver(
-        () => recursiveResolver(source, args, context, info),
-        source,
+        () => recursiveResolver(args, context, info),
         directiveInfo.args,
         context,
         info

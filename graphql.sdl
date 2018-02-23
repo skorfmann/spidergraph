@@ -2,7 +2,7 @@ directive @scrape on FIELD
 directive @css(path: String!) on FIELD
 
 directive @testPage(url: String!) on QUERY
-directive @match(host: String!, path: Regex) on QUERY
+directive @match(url: Regex) on QUERY
 
 scalar Regex
 
