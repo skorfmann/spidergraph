@@ -10,13 +10,13 @@ const fieldDirectives = {
 };
 
 const queryDirectives = {
-  async testPage(resolve, _, { url }, context) {
+  async testPage(resolve, { url }, context) {
     let config = await resolve();
     config.testPageUrl = url;
     return config;
   },
 
-  async match(resolve, _, { url }, context) {
+  async match(resolve, { url }, context) {
     let config = await resolve();
     config.match = { url };
     return config;
