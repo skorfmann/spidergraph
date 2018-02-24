@@ -1,0 +1,10 @@
+query immonet
+  @testPage(url: "https://www.immonet.de/angebot/33189259")
+  @match(url: "immonet.de/angebot/\\d+") {
+
+  realEstate {
+    __typename
+    title @css(path: "#expose-headline")
+    price @css(path: "#priceid_2")
+  }
+}
