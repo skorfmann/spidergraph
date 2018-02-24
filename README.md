@@ -7,7 +7,7 @@ You can also find me on twitter at [@skorfmann](https://twitter.com/skorfmann).
 
 ### CLI
 ```
-spidergraph scrape https://www.immobilienscout24.de/expose/54174187 | jq
+spidergraph scrape https://www.immobilienscout24.de/expose/54174187,https://www.immobilienscout24.de/expose/90214149 | jq
 [
   {
     "info": {
@@ -20,6 +20,21 @@ spidergraph scrape https://www.immobilienscout24.de/expose/54174187 | jq
           "__typename": "House",
           "title": "Einfamilienhaus, \"Exclusive Stadtvilla\" HH Poppenbüttel",
           "price": "2.700 €"
+        }
+      ]
+    }
+  },
+  {
+    "info": {
+      "query": "immobilienscout24",
+      "url": "https://www.immobilienscout24.de/expose/90214149"
+    },
+    "data": {
+      "realEstate": [
+        {
+          "__typename": "House",
+          "title": "Naturverbunden wohnen in einem Niedrigenergiehaus von Privat",
+          "price": "1.450 €"
         }
       ]
     }
