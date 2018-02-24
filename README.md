@@ -7,7 +7,7 @@ You can also find me on twitter at [@skorfmann](https://twitter.com/skorfmann).
 
 ### CLI
 ```
-spidergraph scrape https://www.immobilienscout24.de/expose/54174187,https://www.immobilienscout24.de/expose/90214149 | jq
+spidergraph scrape https://www.immobilienscout24.de/expose/54174187,https://www.immonet.de/angebot/33189259 | jq
 [
   {
     "info": {
@@ -26,15 +26,15 @@ spidergraph scrape https://www.immobilienscout24.de/expose/54174187,https://www.
   },
   {
     "info": {
-      "query": "immobilienscout24",
-      "url": "https://www.immobilienscout24.de/expose/90214149"
+      "query": "immonet",
+      "url": "https://www.immonet.de/angebot/33189259"
     },
     "data": {
       "realEstate": [
         {
           "__typename": "House",
-          "title": "Naturverbunden wohnen in einem Niedrigenergiehaus von Privat",
-          "price": "1.450 €"
+          "title": "2 Zimmer Maisonettewohnung - Neubau im Universitätsviertel",
+          "price": "1390.0 €"
         }
       ]
     }
