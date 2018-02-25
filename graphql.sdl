@@ -111,3 +111,37 @@ enum RentInterval {
   MONTHLY
   YEARLY
 }
+
+enum PropertyListingCategory {
+  SHARED_LIVING
+  FLAT
+  HOUSE
+  GARAGE
+  OFFICE
+  INDUSTRIAL
+  SHOP
+  PLOT
+}
+
+input LocationFilter {
+  streetAdress: String
+  zipCode: String
+  city: String
+  countryCode: String
+  searchRadius: Int
+}
+
+input PriceFilter {
+  min: Int
+  max: Int
+}
+
+input RealEstateFilter {
+  location: LocationFilter
+  price: PriceFilter
+  category: [PropertyListingCategory]
+}
+
+type Subscription {
+  realEstate(search: RealEstateFilter): [Property]
+}
