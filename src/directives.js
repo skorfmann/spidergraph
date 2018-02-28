@@ -13,7 +13,7 @@ const fieldDirectives = {
     const result = await resolve();
     let scope;
 
-    if (Object.keys(object).length !== 0) {
+    if (object.$ !== undefined) {
       scope = object;
     } else {
       scope = await context.page
@@ -24,7 +24,7 @@ const fieldDirectives = {
     const value = await context.page.evaluate(
       (el, attr) => {
         if (el === null) return
-        return el[attr] || el.innerText
+        return el[attr] || el.innerText || el.text;
       },
       element,
       attribute
