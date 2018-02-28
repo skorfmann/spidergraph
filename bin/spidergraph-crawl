@@ -37,7 +37,7 @@ const fetch = async (urls, queryStore, browser) => {
 }
 
 const scrape = async (urls) => {
-  transports.console.level = 'debug'
+  transports.console.level = 'error'
   const queryStore = await loadQueryStore(schema);
   const browser = await urlLoader
   const listCrawler = Observable.fromPromise(fetch(urls, queryStore, browser))
