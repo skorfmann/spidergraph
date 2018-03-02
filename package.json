@@ -17,6 +17,7 @@
     "clean": "rimraf dist",
     "build": "npm run clean && mkdir -p dist && babel src -s -D -d dist",
     "test": "jest --watch",
+    "jest:integration": "jest test/integration.test.js",
     "lint": "esw -w src test"
   },
   "keywords": [
@@ -49,6 +50,7 @@
     "path": "^0.12.7",
     "pug": "^2.0.0-beta11",
     "puppeteer": "^1.1.0",
+    "request-promise": "^4.2.2",
     "rimraf": "^2.6.2",
     "rxjs": "^6.0.0-alpha.3",
     "winston": "^2.4.0"
