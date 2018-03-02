@@ -11,6 +11,10 @@ const resolvers = {
     realEstate: (root, args, context) => {
       return [{title: 'yeah', rent: {}, sale: {}}];
     },
+
+    crawler: (root, args, context) => {
+      return {collection: [], pagination: {}};
+    },
   },
   Property: {
     __resolveType(obj, context, info) {

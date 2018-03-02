@@ -1,11 +1,36 @@
 import logger from './logger'
 
 const fieldDirectives = {
-  async css(resolve, {}, { path }, context) {
-    const result = await resolve()
-    const value = await context.page.$eval(path, element => element.innerText);
+  async elements(resolve, {}, { cssPath }, context) {
+    const result = await resolve();
+    const elements = await context.page.$$(cssPath, elements =>
+      elements.map(element => element)
+    );
+    return elements;
+  },
+
+  async css(resolve, object, { path, attribute }, context) {
+    const result = await resolve();
+    let scope;
+
+    if (object.$ !== undefined) {
+      scope = object;
+    } else {
+      scope = await context.page
+        .evaluateHandle("document")
+        .then(doc => doc.asElement());
+    }
+    const element = await scope.$(path);
+    const value = await context.page.evaluate(
+      (el, attr) => {
+        if (el === null) return
+        return el[attr] || el.innerText || el.text;
+      },
+      element,
+      attribute
+    );
     logger.debug("Selector", path, 'parsed "' + value + '"');
-    return value
+    return value;
   }
 };
 

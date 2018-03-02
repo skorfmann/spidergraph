@@ -1,5 +1,6 @@
 directive @scrape on FIELD
-directive @css(path: String!) on FIELD
+directive @css(path: String!, attribute: String) on FIELD
+directive @elements(cssPath: String!) on FIELD
 
 directive @testPage(url: String!) on QUERY
 directive @match(url: Regex) on QUERY
@@ -8,6 +9,28 @@ scalar Regex
 
 type Query {
   realEstate: [Property]
+  crawler: Listing
+}
+
+scalar Url
+
+type Pagination {
+  next: Url
+  previous: Url
+  first: Url
+  last: Url
+  pages: [Url]
+  current: Url
+}
+
+type ListItem {
+  title: String
+  url: Url
+}
+
+type Listing {
+  pagination: Pagination
+  collection: [ListItem]
 }
 
 enum CurrencyName {

@@ -6,6 +6,9 @@ You can also find me on twitter at [@skorfmann](https://twitter.com/skorfmann).
 ## Example
 
 ### CLI
+
+#### Scrape
+
 ```
 spidergraph scrape https://www.immobilienscout24.de/expose/54174187,https://www.immonet.de/angebot/33189259 | jq
 [
@@ -40,6 +43,16 @@ spidergraph scrape https://www.immobilienscout24.de/expose/54174187,https://www.
     }
   }
 ]
+```
+
+#### Crawl
+
+```
+spidergraph crawl https://www.immobilienscout24.de/Suche/S-T/Wohnung-Miete/Hamburg/Hamburg
+[{"info":{"query":"immobilienscout24","url":"https://www.immobilienscout24.de/expose/89156209"},"data":{"realEstate":[{"__typename":"House","title":"Wellingsbüttel - 2 Zimmer","price":"1.093,63 €"}]}}]
+[{"info":{"query":"immobilienscout24","url":"https://www.immobilienscout24.de/expose/102498094"},"data":{"realEstate":[{"__typename":"House","title":"Ruhiges Wohnen mit Kamin in zentraler Lage","price":"1.863 €"}]}}]
+[{"info":{"query":"immobilienscout24","url":"https://www.immobilienscout24.de/expose/99130149"},"data":{"realEstate":[{"__typename":"House","title":"Hochwertig sanierte Wohnung im Zweifamilienhaus mit Garten","price":"3.800 €"}]}}]
+...
 ```
 
 ## License

@@ -1,0 +1,15 @@
+query immobilienScout24ListCrawler
+@match(url: "immobilienscout24.de/Suche")
+@testPage(url: "https://www.immobilienscout24.de/Suche/S-T/P-2/Wohnung-Miete/Hamburg/Hamburg")
+  {
+  crawler {
+    collection @elements(cssPath: "article[data-item='result']") {
+      title @css(path: "a.result-list-entry__brand-title-container h5")
+      url @css(path: "a.result-list-entry__brand-title-container", attribute: "href")
+    }
+    pagination {
+      next @css(path: "a[data-is24-qa='paging_bottom_next']", attribute: "href")
+      previous @css(path: "a[data-is24-qa='paging_bottom_previous']", attribute: "href")
+    }
+  }
+}
