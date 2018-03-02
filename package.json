@@ -110,5 +110,12 @@
   },
   "jest": {
     "testEnvironment": "node"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "output/*",
+      "test/*",
+      "logs/*"
+    ]
   }
 }
