@@ -1,0 +1,17 @@
+version: '3'
+services:
+  spidergraph:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - HTTP_PROXY=http://mitmproxy:8080
+      - HTTPS_PROXY=https://mitmproxy:8080
+    depends_on:
+      - mitmproxy
+  mitmproxy:
+    image: "skorfmann/mitmproxy"
+    command: "bash -c \"mitmdump -S /flows/*.flow --server-replay-nopop --server-replay-kill-extra --anticache --set upstream_cert=false\""
+    volumes:
+      - ${PWD}/flows:/flows
+      - ~/.mitmproxy:/root/.mitmproxy
