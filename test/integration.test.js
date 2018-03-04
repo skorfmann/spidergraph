@@ -29,7 +29,7 @@ const testQuerySnapshot = (requestOptions, options = {}) => {
 
 // Describe the /products route
 describe("/graphql", () => {
-  jest.setTimeout(15000);
+  jest.setTimeout(20000);
 
   const query = readFileSync(
     resolve(process.env.PWD, "queries/immobilienscout24.gql")
