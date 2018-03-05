@@ -3,7 +3,6 @@ query immobilienScout24
   @match(url: "immobilienscout24.de/expose/\\d+") {
 
   realEstate {
-    __typename
     title @css(path: "#expose-title")
     price @css(path: ".is24qa-kaltmiete")
   }
