@@ -30,9 +30,11 @@ RUN update-ca-certificates
 
 # Unfortunately, Chromium has a bug, where the option "ignoreHTTPSErrors" is ignored
 # when request interception is turned on (which we use for adblocking).
+# See https://github.com/GoogleChrome/puppeteer/issues/1159
+#
 # Chromium is using nssdb on top of its own certificates, but ignores
 # system certificates.
-# So, we really need that root ca here to make testing with the proxy work properly
+# So, we really need that root ca here to make testing with the proxy work properly.
 
 RUN mkdir -p /root/.pki/nssdb && \
     certutil -d $HOME/.pki/nssdb -N --empty-password && \
