@@ -3,6 +3,9 @@
 GraphQL based web scraper / crawler / spider
 
 You can also find me on twitter at [@skorfmann](https://twitter.com/skorfmann).
+
+[![CircleCI](https://circleci.com/gh/skorfmann/spidergraph.svg?style=svg)](https://circleci.com/gh/skorfmann/spidergraph)
+
 ## Example
 
 ### CLI
