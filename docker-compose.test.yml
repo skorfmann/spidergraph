@@ -2,8 +2,6 @@ version: '3'
 services:
   spidergraph:
     image: "skorfmann/spidergraph:$CIRCLE_BRANCH"
-    ports:
-      - "8080:8080"
     environment:
       - HTTP_PROXY=http://mitmproxy:8080
       - HTTPS_PROXY=https://mitmproxy:8080
@@ -15,3 +13,8 @@ services:
     volumes:
       - ${PWD}/flows:/flows
       - ${PWD}/root-ca:/root/.mitmproxy
+  integration-tests:
+    image: "skorfmann/spidergraph:$CIRCLE_BRANCH"
+    command: "npm run jest:integration"
+    environment:
+      - API_URL=http://spidergraph:8080
