@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`immobilienscout24 1`] = `
+Object {
+  "data": Object {
+    "realEstate": Array [
+      Object {
+        "__typename": "House",
+        "price": "1.600 €",
+        "title": "Vermietet: attraktives Stadthaus in exklusiver Wohnanlage zeitnah zu vermieten",
+      },
+    ],
+  },
+}
+`;
