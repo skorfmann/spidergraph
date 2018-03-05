@@ -1,3 +1,4 @@
+# see https://circleci.com/docs/2.0/building-docker-images/#example
 version: 2
 jobs:
   build:
@@ -5,14 +6,8 @@ jobs:
       image: circleci/classic:edge
     steps:
       - checkout
-      # start proprietary DB using private Docker image
-      # with credentials stored in the UI
-      # - run: |
-      #    docker login -u $DOCKER_USER -p $DOCKER_PASS
-      #    docker run -d --name db company/proprietary-db:1.2.3
-
-      # build the application image
-      - run: docker-compose build
-
+      - run: docker build -t skorfmann/spidergraph:$CIRCLE_BRANCH .
+      - run: docker-compose up -f docker-compose.test.yml -d
+      - run: docker run -it skorfmann/spidergraph:$CIRCLE_BRANCH npm run jest:integration
       # deploy the image
       # - run: docker push company/app:$CIRCLE_BRANCH
