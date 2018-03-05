@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`POST http://localhost:8080/graphqlimmobilienscout24 1`] = `
+exports[`immobilienscout24 1`] = `
 Object {
   "data": Object {
     "realEstate": Array [

@@ -13,12 +13,7 @@ const testQuerySnapshot = (requestOptions, options = {}) => {
     // Makes a request with those options
     requestPromise(requestOptions).then(result =>
       // expect the result to match a snapshot named after the uri
-      expect(result).toMatchSnapshot(
-        requestOptions.method +
-          " " +
-          requestOptions.uri +
-          (options.snapShotName || "")
-      )
+      expect(result).toMatchSnapshot((options.snapShotName || ""))
     );
 };
 
