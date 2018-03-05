@@ -12,10 +12,9 @@ export default puppeteer
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-      "--proxy-server=127.0.0.1:8000"
+      "--disable-dev-shm-usage"
     ],
-    // executablePath: "/usr/bin/chromium-browser",
+    executablePath: "/usr/bin/chromium-browser",
     ignoreHTTPSErrors: true
   })
   .then(async browser => {

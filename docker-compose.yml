@@ -14,4 +14,4 @@ services:
     command: "bash -c \"mitmdump -S /flows/*.flow --server-replay-nopop --server-replay-kill-extra --anticache --set upstream_cert=false\""
     volumes:
       - ${PWD}/flows:/flows
-      - ~/.mitmproxy:/root/.mitmproxy
+      - ./root-ca:/root/.mitmproxy
