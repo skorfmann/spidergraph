@@ -8,6 +8,6 @@ jobs:
       - checkout
       - run: docker build -t skorfmann/spidergraph:$CIRCLE_BRANCH .
       - run: docker-compose -f docker-compose.test.yml up -d mitmproxy spidergraph
-      - run: docker-compose -f docker-compose.test.yml up integration-tests
+      - run: docker-compose -f docker-compose.test.yml up --exit-code-from integration-tests integration-tests
       # deploy the image
       # - run: docker push company/app:$CIRCLE_BRANCH
