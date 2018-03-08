@@ -6,7 +6,32 @@ Object {
     "realEstate": Array [
       Object {
         "__typename": "House",
-        "price": "1.600 €",
+        "rent": Object {
+          "basePrice": Object {
+            "code": "EUR",
+            "formatted": "1 600,00 €",
+            "symbol": "€",
+            "value": 1600,
+          },
+          "deposit": Object {
+            "code": "EUR",
+            "formatted": "4 800,00 €",
+            "symbol": "eur",
+            "value": 4800,
+          },
+          "totalPrice": Object {
+            "code": "EUR",
+            "formatted": "1 865,00 €",
+            "symbol": "€",
+            "value": 1865,
+          },
+          "utilities": Object {
+            "code": "EUR",
+            "formatted": "285,00 €",
+            "symbol": "€",
+            "value": 285,
+          },
+        },
         "title": "Vermietet: attraktives Stadthaus in exklusiver Wohnanlage zeitnah zu vermieten",
       },
     ],

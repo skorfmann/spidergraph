@@ -10,8 +10,9 @@ const queryDirectiveMiddleware = (schema) => {
       const source = new Source(graphQLParams.query, "GraphQL request");
       try {
         const documentAST = await parse(source);
+        const operations = documentAST.definitions.filter(def => def.kind === "OperationDefinition");
         const resolver = queryDirectiveResolver(
-          documentAST.definitions[0],
+          operations[0],
           queryDirectives,
           schema
         );

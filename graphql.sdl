@@ -33,14 +33,14 @@ type Listing {
   collection: [ListItem]
 }
 
-enum CurrencyName {
+enum CurrencyCode {
   EUR
   USD
 }
 
 type Currency {
   value: Float
-  name: CurrencyName!
+  code: CurrencyCode!
   symbol: String
   formatted: String
 }
@@ -95,6 +95,7 @@ type PropertyRent {
   heatingCosts: Currency
   basePrice: Currency
   totalPrice: Currency
+  deposit: Currency
   interval: RentInterval
   minContractLength: Int
   maxContractLength: Int
