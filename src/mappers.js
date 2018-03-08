@@ -2,14 +2,33 @@ import logger from './logger';
 import {
   forEachField
 } from "graphql-tools";
+import priceParser from "price-parser"
+import currencyFormatter from "currency-formatter"
 
 class Currency {
   constructor(valueString) {
     this.valueString = valueString;
+    console.log(this.valueString)
+    this.parsed = priceParser.parseFirst(this.valueString);
+    if (this.parsed === null) {
+      this.parsed = priceParser.parseFirst(this.valueString + ' EUR')
+    }
   }
 
   formatted() {
-    return 'Sweet' + this.valueString;
+    return currencyFormatter.format(this.value(), { code: this.code() || 'EUR' });
+  }
+
+  code() {
+    return this.parsed.currencyCode.toUpperCase();
+  }
+
+  value() {
+    return this.parsed.floatValue;
+  }
+
+  symbol() {
+    return this.parsed.symbol;
   }
 }
 
