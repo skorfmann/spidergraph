@@ -4,6 +4,7 @@ import { graphql } from 'graphql'
 import loadQueryStore from "../src/queryStore.js";
 import urlLoader from "../src/browser";
 import schema from "../src/schema";
+import {pubsub, CHANNEL} from "../src/pubsub";
 import program from 'commander';
 import { transports } from '../src/logger';
 
@@ -55,7 +56,10 @@ const scrape = async (urls) => {
     mergeMap(event => Observable.fromPromise(fetch([event.url], queryStore, browser)), null, 1)
   );
 
-  throttled.subscribe(link => console.log(JSON.stringify(link)));
+  throttled.subscribe(property => {
+    console.log("publishing link", JSON.stringify(property));
+    pubsub.publish(CHANNEL, { propertyAdded: property });
+  });
 }
 
 const list = (val) => {

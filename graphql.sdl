@@ -7,6 +7,11 @@ directive @match(url: Regex) on QUERY
 
 scalar Regex
 
+schema {
+  query: Query
+  subscription: Subscription
+}
+
 type Query {
   realEstate: [Property]
   crawler: Listing
@@ -53,10 +58,25 @@ type ContactData {
   email: String
 }
 
+type Photo {
+  title: String
+  url: String
+}
+
+scalar Date
+
 interface Property {
+  id: ID
   title: String
   price: String
-  rooms: Int
+  buildYear: Date
+  description: String
+  misc: String
+  proximity: String
+  facilities: [String]
+  condition: String
+  buildingType: String
+  photos: [Photo]
   rent: PropertyRent
   sale: PropertySale
 }
@@ -100,7 +120,6 @@ type PropertyRent {
   minContractLength: Int
   maxContractLength: Int
   unlimitedContract: Boolean
-  contact: Contact
 }
 
 type PropertySale {
@@ -108,21 +127,52 @@ type PropertySale {
   heatingCosts: Currency
   basePrice: Currency
   totalPrice: Currency
-  contact: Contact
 }
 
 type House implements Property {
+  id: ID
   title: String
   price: String
-  rooms: Int
+  buildYear: Date
+  description: String
+  misc: String
+  proximity: String
+  facilities: [String]
+  condition: String
+  buildingType: String
+  photos: [Photo]
   rent: PropertyRent
   sale: PropertySale
 }
 
 type Flat implements Property {
+  id: ID
   title: String
   price: String
-  rooms: Int
+  buildYear: Date
+  description: String
+  misc: String
+  proximity: String
+  facilities: [String]
+  condition: String
+  buildingType: String
+  photos: [Photo]
+  rent: PropertyRent
+  sale: PropertySale
+}
+
+type Plot implements Property {
+  id: ID
+  title: String
+  price: String
+  buildYear: Date
+  description: String
+  misc: String
+  proximity: String
+  facilities: [String]
+  condition: String
+  buildingType: String
+  photos: [Photo]
   rent: PropertyRent
   sale: PropertySale
 }
@@ -134,4 +184,13 @@ enum RentInterval {
   BIWEEKLY
   MONTHLY
   YEARLY
+}
+
+input PropertyFilter {
+  maxPrice: Int
+  minPrice: Int
+}
+
+type Subscription {
+  propertyAdded(filter: PropertyFilter): Property
 }

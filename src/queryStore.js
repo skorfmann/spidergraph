@@ -25,7 +25,7 @@ const loadQueryStore = async (schema) => {
       }
     }))
   }))
-  return [].concat(...queries);
+  return [].concat(...queries).filter(e => e);
 }
 
 export default loadQueryStore;
