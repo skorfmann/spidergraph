@@ -1,5 +1,6 @@
 directive @scrape on FIELD
 directive @css(path: String!, attribute: String) on FIELD
+directive @regex(pattern: String!) on FIELD
 directive @elements(cssPath: String!) on FIELD
 
 directive @testPage(url: String!) on QUERY
@@ -56,6 +57,10 @@ type Currency {
 
 type Address {
   street: String
+  city: String
+  country: String
+  latitude: Float
+  longitude: Float
 }
 
 type ContactData {
@@ -83,7 +88,9 @@ interface Property {
   photos: [Photo]
   rent: PropertyRent
   sale: PropertySale
+  address: Address
 }
+
 
 type Phone {
   phone: String
@@ -147,6 +154,7 @@ type House implements Property {
   photos: [Photo]
   rent: PropertyRent
   sale: PropertySale
+  address: Address
 }
 
 type Flat implements Property {
@@ -163,6 +171,7 @@ type Flat implements Property {
   photos: [Photo]
   rent: PropertyRent
   sale: PropertySale
+  address: Address
 }
 
 type Plot implements Property {
@@ -179,6 +188,7 @@ type Plot implements Property {
   photos: [Photo]
   rent: PropertyRent
   sale: PropertySale
+  address: Address
 }
 
 enum RentInterval {

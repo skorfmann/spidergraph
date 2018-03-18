@@ -31,6 +31,13 @@ const fieldDirectives = {
     );
     logger.debug("Selector", path, 'parsed "' + value + '"');
     return value;
+  },
+
+  async regex(resolve, object, { pattern }, context) {
+    const result = await resolve();
+    const found = (await context.page.content()).match(pattern)
+    logger.debug("matched", found);
+    return found[1];
   }
 };
 

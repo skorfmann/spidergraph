@@ -12,12 +12,15 @@ query immobilienScout24
   realEstate {
     __typename
     title @css(path: "#expose-title")
+
+    address {
+    	latitude @regex(pattern: "lat: ([\\d\\.]+),")
+      longitude @regex(pattern: "lng: ([\\d\\.]+)")
+    }
+
     rent {
       basePrice @css(path: ".is24qa-kaltmiete") {
 				... currency
-      }
-      utilities @css(path: ".is24qa-nebenkosten") {
-        ... currency
       }
       totalPrice @css(path: ".is24qa-gesamtmiete") {
         ... currency

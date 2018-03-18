@@ -14,6 +14,9 @@ import uuid from "node-uuid";
 
 import { withFilter } from 'graphql-subscriptions';
 import { RedisPubSub } from "graphql-redis-subscriptions";
+import geolib from "geolib";
+import NodeGeocoder from "node-geocoder";
+
 const Redis = require("ioredis");
 
 // Instantiate Redis clients
@@ -32,14 +35,29 @@ const pubsub = new RedisPubSub({
 
 const CHANNEL = `propertyAdded`;
 
-const filter = (payload, variables) => {
+const filter = async (payload, variables) => {
   if (payload.propertyAdded.length === 0) return false;
 
   const property = payload.propertyAdded[0].data.realEstate[0];
   if (variables.filter.maxPrice) {
     return variables.filter.maxPrice >= property.rent.basePrice.value;
   } else if (variables.filter.minPrice) {
-    return variables.filter.minPrice <= property.rent.basePrice.value;
+    return variables.filter.minPrice <= property.rent.basePrice.value;  }
+  else if (variables.filter.location) {
+    const location = await variables.filter.location;
+    const radius = 2500
+    console.log(location)
+    const propertyLocation = {
+      latitude: property.address.latitude,
+      longitude: property.address.longitude,
+    }
+    const filterLocation = {
+      latitude: location.latitude,
+      longitude: location.longitude,
+    }
+    const distance = geolib.getDistance(propertyLocation, filterLocation);
+    console.log({distance})
+    return distance < radius
   } else {
     return false;
   }
@@ -50,7 +68,7 @@ const filter = (payload, variables) => {
 const resolvers = {
   Query: {
     realEstate: (root, args, context) => {
-      return [{ id: 0, title: "yeah", rent: {}, sale: {} }];
+      return [{ id: 0, title: "yeah", rent: {}, sale: {}, address: {} }];
     },
 
     crawler: (root, args, context) => {
@@ -75,6 +93,25 @@ const resolvers = {
       return ast.value;
     }
   }),
+  GeolocatableString: new GraphQLScalarType({
+    name: "GeolocatableString",
+    description: "GeolocatableString",
+    async parseValue(value) {
+      const options = { provider: "google", // Optional depending on the providers
+        httpAdapter: "https", apiKey: process.env.GOOGLE_MAPS_KEY, formatter: null };
+      const geocoder = NodeGeocoder(options);
+      const result = await geocoder.geocode(value)
+      return Object.assign(result[0], {locationString: value});
+    },
+    serialize(value) {
+      console.log('serialize', value)
+      return value
+    },
+    parseLiteral(ast) {
+      console.log('parse literal', ast.value)
+      return ast.value
+    }
+  }),
   Subscription: {
     propertyAdded: {
       resolve: async (payload, args, context, info) => {
@@ -85,12 +122,9 @@ const resolvers = {
         if (context.publish) {
           context.publish(property);
         }
-        return property
+        return property;
       },
-      subscribe: withFilter(
-        () => pubsub.asyncIterator(CHANNEL),
-        filter
-      )
+      subscribe: withFilter(() => pubsub.asyncIterator(CHANNEL), filter)
     }
   }
 };

@@ -1,3 +1,10 @@
+fragment currency on Currency {
+  formatted
+  symbol
+  value
+  code
+}
+
 query immonet
   @testPage(url: "https://www.immonet.de/angebot/33189259")
   @match(url: "immonet.de/angebot/\\d+") {
@@ -5,6 +12,22 @@ query immonet
   realEstate {
     __typename
     title @css(path: "#expose-headline")
-    price @css(path: "#priceid_2")
-  }
+
+    address {
+    	latitude @regex(pattern: "latitude\":([\\d\\.]+)")
+      longitude @regex(pattern: "longitude\":([\\d\\.]+)")
+    }
+
+    rent {
+      basePrice @css(path: "#priceid_2") {
+				... currency
+      }
+      totalPrice @css(path: "#priceid_4") {
+        ... currency
+      }
+      deposit @css(path: "#priceid_19") {
+        ... currency
+      }
+    }
+	}
 }

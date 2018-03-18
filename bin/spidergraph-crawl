@@ -11,6 +11,14 @@ import { transports } from '../src/logger';
 import { Observable } from "rxjs";
 import { take, concatMap, expand, mergeMap } from "rxjs/operators";
 
+// fully random by @BetonMAN
+const shuffleArray = arr => (
+  arr
+    .map(a => [Math.random(), a])
+    .sort((a, b) => a[0] - b[0])
+    .map(a => a[1])
+);
+
 
 const fetch = async (urls, queryStore, browser) => {
   const results = await Promise.all(urls.map(async url => {
@@ -34,6 +42,7 @@ const fetch = async (urls, queryStore, browser) => {
       }
     }))
   }));
+
   return [].concat(...results).filter(n => n)
 }
 
@@ -44,12 +53,16 @@ const scrape = async (urls) => {
   const listCrawler = Observable.fromPromise(fetch(urls, queryStore, browser))
     .pipe(
       expand(event => {
-        const next = event[0].data.crawler.pagination.next
-        return Observable.fromPromise(fetch([next], queryStore, browser))
+        const next = event.map(e => e.data.crawler.pagination.next);
+        return Observable.fromPromise(fetch(next, queryStore, browser))
       }
     ),
     take(2),
-    concatMap(event => event[0].data.crawler.collection)
+
+    concatMap(event => {
+      const collections = event.map(e => e.data.crawler.collection)
+      return shuffleArray([].concat(...collections))
+    })
   )
 
   const throttled = listCrawler.pipe(
