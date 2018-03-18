@@ -1,4 +1,5 @@
 import logger from './logger'
+import format from "es6-template-strings"
 
 const fieldDirectives = {
   async elements(resolve, {}, { cssPath }, context) {
@@ -12,7 +13,6 @@ const fieldDirectives = {
   async css(resolve, object, { path, attribute }, context) {
     const result = await resolve();
     let scope;
-
     if (object.$ !== undefined) {
       scope = object;
     } else {

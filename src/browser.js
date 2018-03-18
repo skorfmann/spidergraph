@@ -14,7 +14,7 @@ export default puppeteer
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage"
     ],
-    executablePath: "/usr/bin/chromium-browser",
+    // executablePath: "/usr/bin/chromium-browser",
     ignoreHTTPSErrors: true
   })
   .then(async browser => {
@@ -27,8 +27,6 @@ export default puppeteer
         const browserProfiler = logger.startTimer();
         const page = await browser.newPage();
         browserProfiler.done("Initialized new browser page");
-
-        let count = 0;
         await page.setRequestInterception(true);
 
         page.on("request", request => {
@@ -39,8 +37,6 @@ export default puppeteer
             "immobilienscout24.de"
           );
           if (isAdRequest === true) {
-            count += 1;
-            console.log("blocked ", count, " - ", request.url());
             request.abort();
           } else {
             request.continue();

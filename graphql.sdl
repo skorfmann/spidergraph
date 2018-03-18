@@ -5,7 +5,11 @@ directive @elements(cssPath: String!) on FIELD
 directive @testPage(url: String!) on QUERY
 directive @match(url: Regex) on QUERY
 
+directive @telegram(userName: String, template: String) on SUBSCRIPTION
+directive @daemonize on SUBSCRIPTION
+
 scalar Regex
+scalar GeolocatableString
 
 schema {
   query: Query
@@ -189,6 +193,8 @@ enum RentInterval {
 input PropertyFilter {
   maxPrice: Int
   minPrice: Int
+  location: GeolocatableString
+  radius: Int
 }
 
 type Subscription {

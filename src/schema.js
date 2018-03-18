@@ -5,6 +5,7 @@ import { addDirectiveResolveFunctionsToSchema } from "graphql-directive";
 import { addMapperFunctionsToSchema } from "./mappers";
 import { fieldDirectives, queryDirectives } from "./directives";
 import { logger } from "./logger";
+import { withDirectivePublish } from "./withDirectivePublish";
 // import { pubsub, CHANNEL } from "./pubsub";
 
 import { GraphQLScalarType } from "graphql";
@@ -30,6 +31,19 @@ const pubsub = new RedisPubSub({
 });
 
 const CHANNEL = `propertyAdded`;
+
+const filter = (payload, variables) => {
+  if (payload.propertyAdded.length === 0) return false;
+
+  const property = payload.propertyAdded[0].data.realEstate[0];
+  if (variables.filter.maxPrice) {
+    return variables.filter.maxPrice >= property.rent.basePrice.value;
+  } else if (variables.filter.minPrice) {
+    return variables.filter.minPrice <= property.rent.basePrice.value;
+  } else {
+    return false;
+  }
+};
 
 
 // Provide resolver functions for your schema fields
@@ -64,22 +78,19 @@ const resolvers = {
   Subscription: {
     propertyAdded: {
       resolve: async (payload, args, context, info) => {
-        console.log("resolve", payload.propertyAdded[0].data.realEstate[0]);
         // Manipulate and return the new value
-        return payload.propertyAdded[0].data.realEstate[0];
-      },
-      subscribe: withFilter(() => pubsub.asyncIterator(CHANNEL), (payload, variables) => {
         const property = payload.propertyAdded[0].data.realEstate[0];
-        console.log("variables", variables, property);
+        const queryInfo = payload.propertyAdded[0].info;
 
-        if (variables.filter.maxPrice) {
-          return variables.filter.maxPrice >= property.rent.basePrice.value;
-        } else if (variables.filter.minPrice) {
-          return variables.filter.minPrice <= property.rent.basePrice.value;
-        } else {
-          return false
+        if (context.publish) {
+          context.publish(property);
         }
-      })
+        return property
+      },
+      subscribe: withFilter(
+        () => pubsub.asyncIterator(CHANNEL),
+        filter
+      )
     }
   }
 };

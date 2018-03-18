@@ -4,13 +4,15 @@ import logger from './logger'
 import bodyParser from 'body-parser';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 import urlLoader from './browser'
-import queryDirectiveMiddleware from "./queryDirectiveMiddleware";
+import { queryDirectiveMiddleware, resolveOperationDirectives } from "./queryDirectiveMiddleware";
+import {  subscriptionDirectives } from "./subscriptionDirectives";
 import schema from './schema';
 
 import cors from "cors";
 import { createServer } from "http";
 import { execute, subscribe } from "graphql";
 import { SubscriptionServer } from "subscriptions-transport-ws";
+
 const { PORT = 8080 } = process.env;
 
 const app = express();
@@ -52,22 +54,20 @@ ws.listen(PORT, () => {
 })
 
 // Set up the WebSocket for handling GraphQL subscriptions
-new SubscriptionServer({ schema, execute, subscribe, onConnect: async (params, socket) => {
-      socket.on('message', (data) => {
-        console.log('mymessage', data)
-      });
-
+const wss = new SubscriptionServer({ schema, execute, subscribe, onConnect: async (params, socket) => {
       socket.on("error", data => {
-        console.log("myerror", data);
+        console.log("error", data);
       });
 
       socket.on("unexpected-response", data => {
-        console.log("myerror", data);
+        console.log("unexpected-response", data);
       });
 
       return params;
     }, onOperation: async (message, params, socket) => {
-      return params;
+      const context = await resolveOperationDirectives(schema, message.payload.query, subscriptionDirectives, params.variables);
+      params.context = Object.assign(context, params.context)
+      return params
     }, onOperationComplete: async (socket, opId) => {
       console.log("onOperationComplete", opId);
     }, onDisconnect: async (params, socket) => {

@@ -1,4 +1,5 @@
 import { RedisPubSub } from "graphql-redis-subscriptions";
+
 const Redis = require("ioredis");
 
 // Instantiate Redis clients
