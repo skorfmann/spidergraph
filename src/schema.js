@@ -68,7 +68,7 @@ const filter = async (payload, variables) => {
 const resolvers = {
   Query: {
     realEstate: (root, args, context) => {
-      return [{ id: 0, title: "yeah", rent: {}, sale: {}, address: {} }];
+      return [{ rent: {}, sale: {}, address: {} }];
     },
 
     crawler: (root, args, context) => {

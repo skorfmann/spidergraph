@@ -66,6 +66,7 @@ const wss = new SubscriptionServer({ schema, execute, subscribe, onConnect: asyn
       return params;
     }, onOperation: async (message, params, socket) => {
       const context = await resolveOperationDirectives(schema, message.payload.query, subscriptionDirectives, params.variables);
+      if (context === undefined) return params;
       params.context = Object.assign(context, params.context)
       return params
     }, onOperationComplete: async (socket, opId) => {
