@@ -12,6 +12,10 @@ subscription customSubscription($filter: PropertyFilter, $userName: String, $tem
         ... currency
       }
     }
+    info {
+      query
+      url
+    }
   }
 }
 

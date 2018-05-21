@@ -7,31 +7,49 @@ import logger from './logger'
 import { AdBlockClient, FilterOptions, adBlockLists } from "ad-block";
 import { makeAdBlockClientFromDATFile } from "ad-block/lib/util";
 
-export default puppeteer
-  .launch({
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage"
-    ],
-    // executablePath: "/usr/bin/chromium-browser",
-    ignoreHTTPSErrors: true
-  })
-  .then(async browser => {
-    const client = await makeAdBlockClientFromDATFile(
+class Browser {
+  constructor() {
+    this.browser = undefined
+    this.client = undefined
+  }
+
+  async init() {
+    if (this.browser !== undefined) return
+
+    this.browser = await puppeteer.launch({
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage"
+      ],
+      // executablePath: "/usr/bin/chromium-browser",
+      ignoreHTTPSErrors: true
+    })
+
+    this.client = await makeAdBlockClientFromDATFile(
       process.env.PWD + "/ABPFilterParserData.dat"
     );
+  }
 
-    return new DataLoader(async urls =>
+  async close() {
+    if (this.browser !== undefined) {
+      try { await this.browser.close(); } catch (err) { console.log(err); }
+    }
+  }
+
+  loader() {
+    if (this.dataLoader !== undefined) return this.dataLoader
+
+    this.dataLoader = new DataLoader(async urls =>
       urls.map(async url => {
         const browserProfiler = logger.startTimer();
-        const page = await browser.newPage();
+        const page = await this.browser.newPage();
         browserProfiler.done("Initialized new browser page");
         await page.setRequestInterception(true);
 
         page.on("request", request => {
           const resourceType = request.resourceType();
-          const isAdRequest = client.matches(
+          const isAdRequest = this.client.matches(
             request.url(),
             resourceType === "xhr" ? "xmlHttpRequest" : resourceType,
             "immobilienscout24.de"
@@ -49,4 +67,9 @@ export default puppeteer
         return page;
       })
     );
-  });
+
+    return this.dataLoader
+  }
+}
+
+export default Browser

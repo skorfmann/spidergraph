@@ -6,16 +6,37 @@ fragment currency on Currency {
 }
 
 query immobilienScout24
-  @testPage(url: "https://www.immobilienscout24.de/expose/73098898")
+  @testPage(url: "https://www.immobilienscout24.de/expose/104954686")
   @match(url: "immobilienscout24.de/expose/\\d+") {
 
   realEstate {
     __typename
+    id @regex(pattern: "Scout-ID:\\s(\\d+)")
     title @css(path: "#expose-title")
 
+  	rooms @css(path:".is24qa-zi")
+    livingArea @css(path: ".is24qa-wohnflaeche")
+    plotSize @css(path: ".is24qa-grundstueck")
+    vacantFrom @css(path: ".is24qa-bezugsfrei-ab")
+    features @elements(cssPath: ".criteriagroup > span") @pluckText
+    buildYear @css(path: ".is24qa-baujahr")
+    description @css(path: ".is24qa-objektbeschreibung")
+    equipment @css(path: ".is24qa-ausstattung")
+    proximity @css(path: ".is24qa-lage")
+    misc @css(path: ".is24qa-sonstiges")
+    contact {
+      name @css(path: "[data-qa=\"contactName\"]")
+      phone @js(code: "IS24.expose.contactData.phoneNumbers.phoneNumber.contactNumber")
+    }
     address {
+      raw @css(path: ".address-block") @strip(text: "Die vollständige Adresse der Immobilie erhalten Sie vom Anbieter.")
     	latitude @regex(pattern: "lat: ([\\d\\.]+),")
       longitude @regex(pattern: "lng: ([\\d\\.]+)")
+    }
+
+    images @elements(cssPath: "img.sp-image") {
+      caption @css(path: ":scope", attribute: "alt")
+      url @css(path: ":scope", attribute: "data-src")
     }
 
     rent {

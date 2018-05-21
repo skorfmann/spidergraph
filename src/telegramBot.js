@@ -2,15 +2,15 @@ import TelegramBot from "node-telegram-bot-api"
 import { subscriptions } from "./subscriptions";
 import { pubsub, CHANNEL } from "./pubsub";
 
-const token = process.env.TELEGRAM_TOKEN;
-const bot = new TelegramBot(token, { polling: true });
+// const token = process.env.TELEGRAM_TOKEN;
+// const bot = new TelegramBot(token, { polling: true });
 
-let channels = {}
+// let channels = {}
 
 const sendMessage = async (name, message) => {
-  bot.getChat(name).then(channel => {
-    bot.sendMessage(channel.id, message);
-  });
+  // bot.getChat(name).then(channel => {
+  //   bot.sendMessage(channel.id, message);
+  // });
 }
 
 // pubsub.subscribe(CHANNEL, payload => {

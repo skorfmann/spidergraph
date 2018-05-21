@@ -17,21 +17,21 @@ import { RedisPubSub } from "graphql-redis-subscriptions";
 import geolib from "geolib";
 import NodeGeocoder from "node-geocoder";
 
-const Redis = require("ioredis");
+// const Redis = require("ioredis");
 
-// Instantiate Redis clients
-const options = {
-  host: "localhost",
-  port: 6379,
-  retry_strategy: options => {
-    // reconnect after
-    return Math.max(2 * 100, 3000);
-  }
-};
+// // Instantiate Redis clients
+// const options = {
+//   host: "localhost",
+//   port: 6379,
+//   retry_strategy: options => {
+//     // reconnect after
+//     return Math.max(2 * 100, 3000);
+//   }
+// };
 
-const pubsub = new RedisPubSub({
-  connection: options
-});
+// const pubsub = new RedisPubSub({
+//   connection: options
+// });
 
 const CHANNEL = `propertyAdded`;
 
@@ -68,7 +68,7 @@ const filter = async (payload, variables) => {
 const resolvers = {
   Query: {
     realEstate: (root, args, context) => {
-      return [{ rent: {}, sale: {}, address: {} }];
+      return [{ rent: {}, sale: {}, address: {}, contact: {}}];
     },
 
     crawler: (root, args, context) => {
@@ -119,10 +119,12 @@ const resolvers = {
         const property = payload.propertyAdded[0].data.realEstate[0];
         const queryInfo = payload.propertyAdded[0].info;
 
+        const enhancedProperty = Object.assign(property, {info: queryInfo})
+
         if (context.publish) {
-          context.publish(property);
+          context.publish(enhancedProperty);
         }
-        return property;
+        return enhancedProperty;
       },
       subscribe: withFilter(() => pubsub.asyncIterator(CHANNEL), filter)
     }

@@ -1,7 +1,10 @@
+directive @js(code: String) on FIELD
 directive @scrape on FIELD
 directive @css(path: String!, attribute: String) on FIELD
 directive @regex(pattern: String!) on FIELD
 directive @elements(cssPath: String!) on FIELD
+directive @pluckText on FIELD
+directive @strip(text: String) on FIELD
 
 directive @testPage(url: String!) on QUERY
 directive @match(url: Regex) on QUERY
@@ -56,6 +59,7 @@ type Currency {
 }
 
 type Address {
+  raw: String
   street: String
   city: String
   country: String
@@ -72,23 +76,32 @@ type Photo {
   url: String
 }
 
-scalar Date
-
 interface Property {
   id: ID
+  contact: Contact
   title: String
   price: String
-  buildYear: Date
   description: String
   misc: String
   proximity: String
-  facilities: [String]
+  equipment: String
   condition: String
   buildingType: String
   photos: [Photo]
   rent: PropertyRent
   sale: PropertySale
+  buildYear: String
+  rooms: Float
+  bedrooms: Int
+  bathrooms: Int
+  livingArea: String
+  features: [String]
+  plotSize: String
+  vacantFrom: String
+  usableFloorSpace: Float
   address: Address
+  images: [Image]
+  info: QueryInfo
 }
 
 
@@ -105,20 +118,11 @@ type OnlineProfiles {
   website: String
 }
 
-type Company {
-  name: String
-  address: Address
-  contactData: ContactData
-}
-
 type Contact {
-  firstName: String
-  lastName: String
-  company: Company
+  name: String
+  company: String
   address: Address
-  phone: Phone
-  online: OnlineProfiles
-  businessHours: String
+  phone: String
 }
 
 type PropertyRent {
@@ -142,53 +146,63 @@ type PropertySale {
 
 type House implements Property {
   id: ID
+  contact: Contact
   title: String
   price: String
-  buildYear: Date
   description: String
   misc: String
   proximity: String
-  facilities: [String]
+  equipment: String
   condition: String
   buildingType: String
   photos: [Photo]
   rent: PropertyRent
   sale: PropertySale
   address: Address
+  buildYear: String
+  rooms: Float
+  bedrooms: Int
+  bathrooms: Int
+  livingArea: String
+  features: [String]
+  plotSize: String
+  vacantFrom: String
+  usableFloorSpace: Float
+  images: [Image]
+  info: QueryInfo
+}
+
+type Image {
+  url: String
+  caption: String
 }
 
 type Flat implements Property {
   id: ID
+  contact: Contact
   title: String
   price: String
-  buildYear: Date
   description: String
   misc: String
   proximity: String
-  facilities: [String]
+  equipment: String
   condition: String
   buildingType: String
   photos: [Photo]
   rent: PropertyRent
   sale: PropertySale
   address: Address
-}
-
-type Plot implements Property {
-  id: ID
-  title: String
-  price: String
-  buildYear: Date
-  description: String
-  misc: String
-  proximity: String
-  facilities: [String]
-  condition: String
-  buildingType: String
-  photos: [Photo]
-  rent: PropertyRent
-  sale: PropertySale
-  address: Address
+  buildYear: String
+  rooms: Float
+  bedrooms: Int
+  bathrooms: Int
+  livingArea: String
+  features: [String]
+  plotSize: String
+  vacantFrom: String
+  usableFloorSpace: Float
+  images: [Image]
+  info: QueryInfo
 }
 
 enum RentInterval {
@@ -209,4 +223,9 @@ input PropertyFilter {
 
 type Subscription {
   propertyAdded(filter: PropertyFilter): Property
+}
+
+type QueryInfo {
+  query: String
+  url: String
 }

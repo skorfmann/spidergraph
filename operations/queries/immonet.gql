@@ -6,16 +6,34 @@ fragment currency on Currency {
 }
 
 query immonet
-  @testPage(url: "https://www.immonet.de/angebot/33189259")
+  @testPage(url: "https://www.immonet.de/angebot/13085474")
   @match(url: "immonet.de/angebot/\\d+") {
 
   realEstate {
     __typename
+    id @regex(pattern: "Immonet-Nr\\.:\\s(\\d+)")
     title @css(path: "#expose-headline")
-
+		rooms @css(path:"#equipmentid_1")
+    livingArea @css(path: "#areaid_1")
+    plotSize @css(path: "#areaid_3")
+    vacantFrom @css(path: "#deliveryValue")
+    features @elements(cssPath: "span.padding-left-21") @pluckText
+    buildYear @css(path: "#yearbuild")
+    description @css(path: "#objectDescription")
+    proximity @css(path: "#locationDescription")
+    contact {
+      name @css(path: "#bdContactName")
+      phone @css(path: "#boxPhone2 p") @strip(text: "Mobil:")
+    }
     address {
-    	latitude @regex(pattern: "latitude\":([\\d\\.]+)")
-      longitude @regex(pattern: "longitude\":([\\d\\.]+)")
+      raw @css(path: ".text-100.pull-left") @strip(text: "Auf Karte anzeigen")
+    	latitude @regex(pattern: "lat:\\s([\\d\\.]+)")
+      longitude @regex(pattern: "lat:\\s([\\d\\.]+)")
+    }
+
+    images @js(code: "$('.fotorama').data('fotorama').data.map((e) => { return {url: e.full, caption: e.caption} } )") {
+      caption
+      url
     }
 
     rent {

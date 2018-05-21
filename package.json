@@ -42,6 +42,7 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "body-parser": "^1.18.2",
+    "cheerio": "^1.0.0-rc.2",
     "commander": "^2.15.0",
     "cors": "^2.8.4",
     "currency-formatter": "^1.4.2",

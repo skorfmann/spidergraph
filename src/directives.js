@@ -2,12 +2,39 @@ import logger from './logger'
 import format from "es6-template-strings"
 
 const fieldDirectives = {
-  async elements(resolve, {}, { cssPath }, context) {
+  async elements(resolve, {}, { cssPath, textOnly }, context) {
     const result = await resolve();
-    const elements = await context.page.$$(cssPath, elements =>
-      elements.map(element => element)
-    );
-    return elements;
+    return await context.page.$$(cssPath)
+  },
+
+  async pluckText(resolve, object, {}, {}, context) {
+    const result = await resolve();
+    return await result.map(async (element) => {
+      const prop = await element.getProperty('innerHTML')
+      const value = await prop.jsonValue()
+      return value.replace(/[\t\n]/g, '');
+    })
+  },
+
+  async strip(resolve, object, { text }, {}, context) {
+    const result = await resolve();
+    let stripped = result
+    if (text !== undefined) {
+      stripped = result.replace(new RegExp(text), '')
+    }
+    return stripped.replace(/[\t\n]/g, '').trim()
+  },
+
+  async js(resolve, {}, { code }, context) {
+    const result = await resolve();
+    const items = await context.page.evaluate(
+      (code) => {
+        return eval(code)
+      },
+      code
+    )
+
+    return items
   },
 
   async css(resolve, object, { path, attribute }, context) {
@@ -20,11 +47,13 @@ const fieldDirectives = {
         .evaluateHandle("document")
         .then(doc => doc.asElement());
     }
-    const element = await scope.$(path);
+    const element = (path === ':scope') ? scope : await scope.$(path);
     const value = await context.page.evaluate(
       (el, attr) => {
         if (el === null) return
-        return el[attr] || el.innerText || el.text;
+        // We need the full URL here, el.href returns it ; el.getAttribute(attr) not :/
+        if (attr === 'href') return el.href
+        return el.getAttribute(attr) || el.innerText || el.text;
       },
       element,
       attribute

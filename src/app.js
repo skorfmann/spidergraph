@@ -3,7 +3,7 @@ import morgan from 'morgan';
 import logger from './logger'
 import bodyParser from 'body-parser';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
-import urlLoader from './browser'
+import Browser from './browser'
 import { queryDirectiveMiddleware, resolveOperationDirectives } from "./queryDirectiveMiddleware";
 import {  subscriptionDirectives } from "./subscriptionDirectives";
 import schema from './schema';
@@ -14,7 +14,7 @@ import { execute, subscribe } from "graphql";
 import { SubscriptionServer } from "subscriptions-transport-ws";
 
 const { PORT = 8080 } = process.env;
-
+const browser = new Browser()
 const app = express();
 // origin must be same as your client URI
 app.use("*", cors({ origin: `http://localhost:${PORT}` }));
@@ -25,11 +25,12 @@ app.use(
   bodyParser.json(),
   queryDirectiveMiddleware(schema),
   async (request, response, next) => {
-    let page;
+    let page
+    await browser.init()
     if (response.locals.queryConfig && response.locals.queryConfig.testPageUrl) {
-      page = await urlLoader
-        .then(browser => browser.load(response.locals.queryConfig.testPageUrl))
-        .then(page => page);
+      const loader = await browser.loader()
+      console.log({loader})
+      page = await loader.load(response.locals.queryConfig.testPageUrl)
     }
     return graphqlExpress({
       schema,
@@ -72,7 +73,7 @@ const wss = new SubscriptionServer({ schema, execute, subscribe, onConnect: asyn
     }, onOperationComplete: async (socket, opId) => {
       console.log("onOperationComplete", opId);
     }, onDisconnect: async (params, socket) => {
-      console.log("onDisconnect");
+      console.log("onDisconnect", params);
     } }, { server: ws, path: "/subscriptions" });
 
 export default app;

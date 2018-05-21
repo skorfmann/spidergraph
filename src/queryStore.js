@@ -17,7 +17,7 @@ const loadQueryStore = async (schema) => {
       const resolver = queryDirectiveResolver(definition, queryDirectives, schema);
       if (!resolver) return;
       const config = await resolver(Promise.resolve, {}, {});
-      logger.debug('Config provided by Query directives:', JSON.stringify(config));
+      // logger.debug('Config provided by Query directives:', JSON.stringify(config));
       return {
         config,
         queryString,
