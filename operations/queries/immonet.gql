@@ -28,7 +28,7 @@ query immonet
     address {
       raw @css(path: ".text-100.pull-left") @strip(text: "Auf Karte anzeigen")
     	latitude @regex(pattern: "lat:\\s([\\d\\.]+)")
-      longitude @regex(pattern: "lat:\\s([\\d\\.]+)")
+      longitude @regex(pattern: "lng:\\s([\\d\\.]+)")
     }
 
     images @js(code: "$('.fotorama').data('fotorama').data.map((e) => { return {url: e.full, caption: e.caption} } )") {

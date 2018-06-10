@@ -10,7 +10,7 @@ const fieldDirectives = {
   async pluckText(resolve, object, {}, {}, context) {
     const result = await resolve();
     return await result.map(async (element) => {
-      const prop = await element.getProperty('innerHTML')
+      const prop = await element.getProperty('innerText')
       const value = await prop.jsonValue()
       return value.replace(/[\t\n]/g, '');
     })
@@ -22,7 +22,7 @@ const fieldDirectives = {
     if (text !== undefined) {
       stripped = result.replace(new RegExp(text), '')
     }
-    return stripped.replace(/[\t\n]/g, '').trim()
+    return stripped.replace(/[\n]/g, ' ').replace(/[\t]/g, '').trim()
   },
 
   async js(resolve, {}, { code }, context) {

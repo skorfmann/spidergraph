@@ -7,7 +7,7 @@ import { queryDirectiveResolver } from "./queryDirectiveResolver";
 import { queryDirectives } from "./directives";
 
 const loadQueryStore = async (schema) => {
-  const files = glob.sync(process.env.PWD + "/operations/queries/**/*.gql")
+  const files = glob.sync(process.cwd() + "/operations/queries/**/*.gql")
   const queries = await Promise.all(files.map(async (file) => {
     const queryString = readFileSync(file).toString();
     const queryName = basename(file, '.gql');

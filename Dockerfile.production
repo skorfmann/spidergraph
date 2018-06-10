@@ -16,9 +16,12 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
 RUN mkdir /app
 WORKDIR /app
+ENV PATH="/app/bin:${PATH}"
+ENV LISTING_PAGE_LIMIT=100
+RUN npm install babel-cli -g --save
 
 COPY ./package.json /app
 RUN npm install
 COPY . /app
 
-CMD ["npm", "run", "dev"];
+ENTRYPOINT ["spidergraph", "crawl"];

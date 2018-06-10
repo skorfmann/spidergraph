@@ -1,4 +1,4 @@
-#!/usr/bin/env babel-node --
+#!/usr/bin/env babel-node
 
 import { graphql } from 'graphql'
 import loadQueryStore from "../src/queryStore.js";
@@ -26,6 +26,9 @@ const browser = new Browser()
 const fetch = async (urls, queryStore) => {
   const loader = browser.loader()
   const results = await Promise.all(urls.map(async url => {
+    console.log({url})
+    if (url === null) return []
+
     const page = await loader.load(url);
     const data = await Promise.all(queryStore.map(async (query) => {
       const pattern = new RegExp(query.config.match.url);
@@ -51,6 +54,7 @@ const fetch = async (urls, queryStore) => {
 }
 
 const scrape = async (urls) => {
+  const { LISTING_PAGE_LIMIT, API_ENDPOINT } = process.env
   transports.console.level = 'info'
   const queryStore = await loadQueryStore(schema);
   await browser.init()
@@ -61,22 +65,26 @@ const scrape = async (urls) => {
         return Observable.fromPromise(fetch(next, queryStore))
       }
     ),
-    take(1),
+    take(parseInt(LISTING_PAGE_LIMIT)),
 
     concatMap(event => {
       const collections = event.map(e => e.data.crawler.collection)
-      console.log({collections: JSON.stringify(collections)})
       return shuffleArray([].concat(...collections))
     })
   )
 
   const throttled = listCrawler.pipe(
-    mergeMap(event => Observable.fromPromise(fetch([event.url], queryStore)), null, 1)
+    mergeMap(event => {
+      console.log('event url debugging', event)
+      if (event === null) return Observable.empty();
+      return Observable.fromPromise(fetch([event.url], queryStore))
+    }, null, 1)
   );
 
   throttled.subscribe(property => {
+    console.log(property)
     request({
-        url: "http://localhost:3000/api/property_signals",
+        url: API_ENDPOINT,
         method: "POST",
         json: true,
         body: {payload: property[0]}

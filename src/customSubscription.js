@@ -14,7 +14,7 @@ import { subscriptionDirectives } from "./subscriptionDirectives";
 let subscriptions = {}
 
 const loadSubscription = async () => {
-  const queryString = readFileSync(process.env.PWD + "/operations/subscriptions/subscription.gql").toString();
+  const queryString = readFileSync(process.cwd() + "/operations/subscriptions/subscription.gql").toString();
   const source = new Source(queryString, "customSubscription");
   return { document: parse(source), source };
 }

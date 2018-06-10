@@ -27,7 +27,7 @@ class Browser {
     })
 
     this.client = await makeAdBlockClientFromDATFile(
-      process.env.PWD + "/ABPFilterParserData.dat"
+      process.cwd() + "/ABPFilterParserData.dat"
     );
   }
 
@@ -62,8 +62,19 @@ class Browser {
         });
 
         const pageProfiler = logger.startTimer();
-        await page.goto(url, { waitUntil: "networkidle2" });
-        pageProfiler.done("Loaded url: " + url);
+        let count = 0;
+        let maxTries = 3;
+        while(true) {
+            try {
+                await page.goto(url, {waitUntil: "networkidle2"})
+                pageProfiler.done("Loaded url: " + url);
+                break
+            } catch(e) {
+                console.log('caught timeout', e)
+                if (++count == maxTries) break;
+            }
+        }
+
         return page;
       })
     );

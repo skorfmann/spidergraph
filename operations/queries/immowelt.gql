@@ -1,0 +1,56 @@
+fragment currency on Currency {
+  formatted
+  symbol
+  value
+  code
+}
+
+query immowelt
+  @testPage(url: "https://www.immowelt.de/expose/2KXVM4M")
+  @match(url: "immowelt.de/expose\\/\\w+") {
+
+  realEstate {
+    __typename
+    id @regex(pattern: "Online-ID:\\s(\\w+)")
+    title @css(path: "h1")
+		rooms @css(path:".rooms") @strip(text: "Zimmer")
+    livingArea @css(path: ".hardfact:nth-child(2)") @strip(text: "m²\\\nWohnfläche\\s\\(ca\\.\\)\\\n")
+    plotSize @css(path: ".rooms+ .hardfact") @strip(text: "m²\\\nGrundstücksfl\\.\\s\\(ca\\.\\)\\\n")
+    vacantFrom @css(path: "#deliveryValue")
+    features @elements(cssPath: "ul.textlist_icon_03 > li") @pluckText
+    buildYear @regex(pattern: "Baujahr:\\s(\\d+)")
+    description @css(path: "#divImmobilie .read p")
+    proximity @css(path: "#divLageinfos .read p")
+    contact {
+      name @css(path: ".linklist_icon_header span")
+    }
+    address {
+      raw @css(path: ".location > span") @strip(text: "Auf Karte anzeigen")
+    	latitude @js(code: "IwAG.Vars.MapOptions.lat")
+      longitude @js(code: "IwAG.Vars.MapOptions.lon")
+    }
+
+    images @js(code: "IwAG.Vars.exposeConfig.imageData.map((e) => { return {url: e.srcImageStage, caption: e.caption} } )") {
+      caption
+      url
+    }
+
+    rent {
+      basePrice @css(path: ".datacontent strong") {
+				... currency
+      }
+
+      utilities @js(code: "jQuery('div.datalabel:contains(\\\"Nebenkosten\\\")+ div').text()") {
+				... currency
+      }
+
+      totalPrice @js(code: "jQuery('div.datalabel:contains(\\\"Warmmiete\\\")+ div').text()") {
+        ... currency
+      }
+
+      deposit @js(code: "jQuery('div.section_label:contains(\\\"Kaution\\\")+ div').text()") {
+        ... currency
+      }
+    }
+	}
+}
