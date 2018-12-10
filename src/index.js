@@ -10,7 +10,6 @@ const scrape = async page => {
       const pattern = new RegExp(query.config.match.url);
       const url = page.url();
       if (!pattern.test(url)) return;
-      console.log("foo");
       const result = await graphql(
         schema,
         query.queryString,
@@ -20,13 +19,12 @@ const scrape = async page => {
         return result;
       });
 
-      return {
+      return Object.assign({}, result, {
         info: {
           query: query.queryName,
           url: url
-        },
-        data: result.data
-      };
+        }
+      });
     })
   );
 

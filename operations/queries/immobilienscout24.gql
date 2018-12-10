@@ -9,8 +9,8 @@ query immobilienScout24
   @testPage(url: "https://www.immobilienscout24.de/expose/108639729")
   @match(url: "immobilienscout24.de/expose/\\d+") {
   node
+    @js(code: "IS24.expose.realEstateType")
     @realEstateType(
-      code: "IS24.expose.realEstateType"
       mapping: "{\"apartment_rent\": \"ApartmentForRent\", \"house_rent\": \"HouseForRent\"}"
     ) {
     __typename
@@ -76,6 +76,7 @@ query immobilienScout24
       vacantFrom @css(path: ".is24qa-bezugsfrei-ab")
       features @elements(cssPath: ".criteriagroup > span") @pluckText
       buildYear @css(path: ".is24qa-baujahr")
+      plotSize @css(path: ".is24qa-grundstueck")
     }
   }
 }

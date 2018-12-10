@@ -6,46 +6,75 @@ fragment currency on Currency {
 }
 
 query immonet
-  @testPage(url: "https://www.immonet.de/angebot/13085474")
+  @testPage(url: "https://www.immonet.de/angebot/34805748")
   @match(url: "immonet.de/angebot/\\d+") {
-
-  realEstate {
+  node
+    @css(path: ".padding-left-4+ .padding-left-4 .text-gray-darker-hover")
+    @realEstateType(
+      mapping: "{\"wohnung mieten\": \"ApartmentForRent\", \"haus mieten\": \"HouseForRent\"}"
+    ) {
     __typename
     id @regex(pattern: "Immonet-Nr\\.:\\s(\\d+)")
-    title @css(path: "#expose-headline")
-		rooms @css(path:"#equipmentid_1")
-    livingArea @css(path: "#areaid_1")
-    plotSize @css(path: "#areaid_3")
-    vacantFrom @css(path: "#deliveryValue")
-    features @elements(cssPath: "span.padding-left-21") @pluckText
-    buildYear @css(path: "#yearbuild")
-    description @css(path: "#objectDescription")
-    proximity @css(path: "#locationDescription")
-    contact {
-      name @css(path: "#bdContactName")
-      phone @css(path: "#boxPhone2 p") @strip(text: "Mobil:")
-    }
-    address {
-      raw @css(path: ".text-100.pull-left") @strip(text: "Auf Karte anzeigen")
-    	latitude @regex(pattern: "lat:\\s([\\d\\.]+)")
-      longitude @regex(pattern: "lng:\\s([\\d\\.]+)")
+
+    ... on RealEstate {
+      title @css(path: "#expose-headline")
+      description @css(path: "#objectDescription")
+      contact {
+        company @css(path: "#bdlFirmname")
+        name @css(path: "#bdlName")
+        phone @css(path: "#bdlMobile") @strip(text: "Mobil:")
+      }
+      equipment @css(path: "#ausstattung")
+      proximity @css(path: "#locationDescription")
+      images
+        @js(
+          code: "$('.fotorama').data('fotorama').data.map((e) => { return {url: e.full, caption: e.caption} } )"
+        ) {
+        caption
+        url
+      }
     }
 
-    images @js(code: "$('.fotorama').data('fotorama').data.map((e) => { return {url: e.full, caption: e.caption} } )") {
-      caption
-      url
+    ... on GeoLocation {
+      address {
+        raw @css(path: ".text-100.pull-left") @strip(text: "Auf Karte anzeigen")
+        latitude @regex(pattern: "lat:\\s([\\d\\.]+)")
+        longitude @regex(pattern: "lng:\\s([\\d\\.]+)")
+      }
     }
 
-    rent {
-      basePrice @css(path: "#priceid_2") {
-				... currency
-      }
-      totalPrice @css(path: "#priceid_4") {
-        ... currency
-      }
-      deposit @css(path: "#priceid_19") {
-        ... currency
+    ... on RealEstateRent {
+      rent {
+        basePrice @css(path: "#priceid_2") {
+          ...currency
+        }
+        totalPrice @css(path: "#priceid_4") {
+          ...currency
+        }
+        deposit @css(path: "#priceid_19") {
+          ...currency
+        }
+        utilities @css(path: "#priceid_20") {
+          ...currency
+        }
       }
     }
-	}
+
+    ... on Apartment {
+      rooms @css(path: "#equipmentid_1")
+      livingArea @css(path: "#areaid_1")
+      vacantFrom @css(path: "#deliveryValue")
+      features @elements(cssPath: "span.padding-left-21") @pluckText
+      buildYear @css(path: "#yearbuild")
+    }
+
+    ... on House {
+      rooms @css(path: "#equipmentid_1")
+      livingArea @css(path: "#areaid_1")
+      vacantFrom @css(path: "#deliveryValue")
+      features @elements(cssPath: "span.padding-left-21") @pluckText
+      buildYear @css(path: "#yearbuild")
+      plotSize @css(path: "#areaid_3")
+    }
+  }
 }

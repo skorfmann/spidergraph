@@ -20,6 +20,7 @@ let server = new ApolloServer({
       const loader = await browser.loader();
       page = await loader.load(res.locals.queryConfig.testPageUrl);
     }
+    console.log({ queryConfig: res.locals.queryConfig });
     return Object.assign({ page }, res.locals.queryConfig);
   }
 });

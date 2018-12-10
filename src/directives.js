@@ -18,6 +18,8 @@ const fieldDirectives = {
 
   async strip(resolve, object, { text }, {}, context) {
     const result = await resolve();
+    if (result === undefined) return null;
+
     let stripped = result;
     if (text !== undefined) {
       stripped = result.replace(new RegExp(text), "");
@@ -43,29 +45,24 @@ const fieldDirectives = {
   },
 
   async realEstateType(resolve, object, args, context) {
-    let type;
-    const code = args.code;
     const mapping = args.mapping;
     const result = await resolve();
-    const items = await context.page.evaluate(code => {
-      return eval(code);
-    }, code);
-
-    console.log({ mapping, items });
+    console.log({ mapping, result });
 
     return {
       rent: {},
       sale: {},
       address: {},
       contact: {},
-      type: mapping[items.toLowerCase()]
+      info: {},
+      type: mapping[result.toLowerCase()]
     };
   },
 
   async css(resolve, object, { path, attribute }, context) {
     const result = await resolve();
     let scope;
-    if (object.$ !== undefined) {
+    if (object && object.$ !== undefined) {
       scope = object;
     } else {
       scope = await context.page
