@@ -1,20 +1,20 @@
-import puppeteer from 'puppeteer'
-import DataLoader from 'dataloader'
-import { URL } from "url"
-import fse from "fs-extra"
-import path from "path"
-import logger from './logger'
+import puppeteer from "puppeteer";
+import DataLoader from "dataloader";
+import { URL } from "url";
+import fse from "fs-extra";
+import path from "path";
+import logger from "./logger";
 import { AdBlockClient, FilterOptions, adBlockLists } from "ad-block";
 import { makeAdBlockClientFromDATFile } from "ad-block/lib/util";
 
 class Browser {
   constructor() {
-    this.browser = undefined
-    this.client = undefined
+    this.browser = undefined;
+    this.client = undefined;
   }
 
   async init() {
-    if (this.browser !== undefined) return
+    if (this.browser !== undefined) return;
 
     this.browser = await puppeteer.launch({
       args: [
@@ -24,7 +24,7 @@ class Browser {
       ],
       // executablePath: "/usr/bin/chromium-browser",
       ignoreHTTPSErrors: true
-    })
+    });
 
     this.client = await makeAdBlockClientFromDATFile(
       process.cwd() + "/ABPFilterParserData.dat"
@@ -33,12 +33,16 @@ class Browser {
 
   async close() {
     if (this.browser !== undefined) {
-      try { await this.browser.close(); } catch (err) { console.log(err); }
+      try {
+        await this.browser.close();
+      } catch (err) {
+        console.log(err);
+      }
     }
   }
 
   loader() {
-    if (this.dataLoader !== undefined) return this.dataLoader
+    if (this.dataLoader !== undefined) return this.dataLoader;
 
     this.dataLoader = new DataLoader(async urls =>
       urls.map(async url => {
@@ -64,23 +68,23 @@ class Browser {
         const pageProfiler = logger.startTimer();
         let count = 0;
         let maxTries = 3;
-        while(true) {
-            try {
-                await page.goto(url, {waitUntil: "networkidle2"})
-                pageProfiler.done("Loaded url: " + url);
-                break
-            } catch(e) {
-                console.log('caught timeout', e)
-                if (++count == maxTries) break;
-            }
+        while (true) {
+          try {
+            await page.goto(url, { waitUntil: "networkidle2" });
+            pageProfiler.done("Loaded url: " + url);
+            break;
+          } catch (e) {
+            console.log("caught timeout", e);
+            if (++count == maxTries) break;
+          }
         }
 
         return page;
       })
     );
 
-    return this.dataLoader
+    return this.dataLoader;
   }
 }
 
-export default Browser
+export default Browser;

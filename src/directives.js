@@ -1,40 +1,65 @@
-import logger from './logger'
-import format from "es6-template-strings"
+import logger from "./logger";
+import format from "es6-template-strings";
 
 const fieldDirectives = {
   async elements(resolve, {}, { cssPath, textOnly }, context) {
     const result = await resolve();
-    return await context.page.$$(cssPath)
+    return await context.page.$$(cssPath);
   },
 
   async pluckText(resolve, object, {}, {}, context) {
     const result = await resolve();
-    return await result.map(async (element) => {
-      const prop = await element.getProperty('innerText')
-      const value = await prop.jsonValue()
-      return value.replace(/[\t\n]/g, '');
-    })
+    return await result.map(async element => {
+      const prop = await element.getProperty("innerText");
+      const value = await prop.jsonValue();
+      return value.replace(/[\t\n]/g, "");
+    });
   },
 
   async strip(resolve, object, { text }, {}, context) {
     const result = await resolve();
-    let stripped = result
+    let stripped = result;
     if (text !== undefined) {
-      stripped = result.replace(new RegExp(text), '')
+      stripped = result.replace(new RegExp(text), "");
     }
-    return stripped.replace(/[\n]/g, ' ').replace(/[\t]/g, '').trim()
+    return stripped
+      .replace(/[\n]/g, " ")
+      .replace(/[\t]/g, "")
+      .trim();
   },
 
-  async js(resolve, {}, { code }, context) {
+  async js(resolve, object, args, context) {
+    const code = args.code;
     const result = await resolve();
-    const items = await context.page.evaluate(
-      (code) => {
-        return eval(code)
-      },
-      code
-    )
+    const items = await context.page.evaluate(code => {
+      let r;
+      try {
+        r = eval(code);
+      } catch (e) {}
+      return r;
+    }, code);
 
-    return items
+    return items;
+  },
+
+  async realEstateType(resolve, object, args, context) {
+    let type;
+    const code = args.code;
+    const mapping = args.mapping;
+    const result = await resolve();
+    const items = await context.page.evaluate(code => {
+      return eval(code);
+    }, code);
+
+    console.log({ mapping, items });
+
+    return {
+      rent: {},
+      sale: {},
+      address: {},
+      contact: {},
+      type: mapping[items.toLowerCase()]
+    };
   },
 
   async css(resolve, object, { path, attribute }, context) {
@@ -47,12 +72,12 @@ const fieldDirectives = {
         .evaluateHandle("document")
         .then(doc => doc.asElement());
     }
-    const element = (path === ':scope') ? scope : await scope.$(path);
+    const element = path === ":scope" ? scope : await scope.$(path);
     const value = await context.page.evaluate(
       (el, attr) => {
-        if (el === null) return
+        if (el === null) return;
         // We need the full URL here, el.href returns it ; el.getAttribute(attr) not :/
-        if (attr === 'href') return el.href
+        if (attr === "href") return el.href;
         return el.getAttribute(attr) || el.innerText || el.text;
       },
       element,
@@ -64,9 +89,9 @@ const fieldDirectives = {
 
   async regex(resolve, object, { pattern }, context) {
     const result = await resolve();
-    const found = (await context.page.content()).match(pattern)
+    const found = (await context.page.content()).match(pattern);
     logger.debug("matched", found);
-    return found[1];
+    return found ? found[1] : null;
   }
 };
 
@@ -82,6 +107,6 @@ const queryDirectives = {
     config.match = { url };
     return config;
   }
-}
+};
 
 export { fieldDirectives, queryDirectives };

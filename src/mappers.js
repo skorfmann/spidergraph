@@ -1,22 +1,22 @@
-import logger from './logger';
-import {
-  forEachField
-} from "graphql-tools";
-import priceParser from "price-parser"
-import currencyFormatter from "currency-formatter"
+import logger from "./logger";
+import { forEachField } from "graphql-tools";
+import priceParser from "price-parser";
+import currencyFormatter from "currency-formatter";
 
 class Currency {
   constructor(valueString) {
     this.valueString = valueString;
-    this.parsed = priceParser.parseFirst(this.valueString);
+    this.parsed = priceParser.parseFirst(this.valueString.replace(",-", ""));
     if (this.parsed === null) {
-      this.parsed = priceParser.parseFirst(this.valueString + ' EUR')
+      this.parsed = priceParser.parseFirst(this.valueString + " EUR");
     }
   }
 
   formatted() {
     if (this.parsed) {
-      return currencyFormatter.format(this.value(), { code: this.code() || 'EUR' });
+      return currencyFormatter.format(this.value(), {
+        code: this.code() || "EUR"
+      });
     } else {
       return this.valueString.formatted;
     }
@@ -47,7 +47,7 @@ class Currency {
   }
 }
 
-const mappers = { Currency }
+const mappers = { Currency };
 
 function addMapperFunctionsToSchema(schema, mappers) {
   forEachField(schema, (field, typeName, fieldName) => {
@@ -62,4 +62,4 @@ function addMapperFunctionsToSchema(schema, mappers) {
   });
 }
 
-export {addMapperFunctionsToSchema, mappers}
+export { addMapperFunctionsToSchema, mappers };

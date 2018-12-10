@@ -1,3 +1,4 @@
+directive @realEstateType(code: String, mapping: JSON) on FIELD
 directive @js(code: String) on FIELD
 directive @scrape on FIELD
 directive @css(path: String!, attribute: String) on FIELD
@@ -14,6 +15,7 @@ directive @daemonize on SUBSCRIPTION
 
 scalar Regex
 scalar GeolocatableString
+scalar JSON
 
 schema {
   query: Query
@@ -21,7 +23,7 @@ schema {
 }
 
 type Query {
-  realEstate: [Property]
+  node: Node
   crawler: Listing
 }
 
@@ -76,35 +78,6 @@ type Photo {
   url: String
 }
 
-interface Property {
-  id: ID
-  contact: Contact
-  title: String
-  price: String
-  description: String
-  misc: String
-  proximity: String
-  equipment: String
-  condition: String
-  buildingType: String
-  photos: [Photo]
-  rent: PropertyRent
-  sale: PropertySale
-  buildYear: String
-  rooms: Float
-  bedrooms: Int
-  bathrooms: Int
-  livingArea: String
-  features: [String]
-  plotSize: String
-  vacantFrom: String
-  usableFloorSpace: Float
-  address: Address
-  images: [Image]
-  info: QueryInfo
-}
-
-
 type Phone {
   phone: String
   mobile: String
@@ -138,38 +111,10 @@ type PropertyRent {
 }
 
 type PropertySale {
-  utilities: Currency
-  heatingCosts: Currency
-  basePrice: Currency
-  totalPrice: Currency
-}
-
-type House implements Property {
-  id: ID
-  contact: Contact
-  title: String
-  price: String
-  description: String
-  misc: String
-  proximity: String
-  equipment: String
-  condition: String
-  buildingType: String
-  photos: [Photo]
-  rent: PropertyRent
-  sale: PropertySale
-  address: Address
-  buildYear: String
-  rooms: Float
-  bedrooms: Int
-  bathrooms: Int
-  livingArea: String
-  features: [String]
-  plotSize: String
-  vacantFrom: String
-  usableFloorSpace: Float
-  images: [Image]
-  info: QueryInfo
+  price: Currency
+  commonCharge: Currency
+  parkingSpacePrice: Currency
+  commission: Float
 }
 
 type Image {
@@ -177,19 +122,93 @@ type Image {
   caption: String
 }
 
-type Flat implements Property {
+interface Node {
+  id: ID
+  info: QueryInfo
+}
+
+interface RealEstate {
+  title: String
+  description: String
+  contact: Contact
+  condition: String
+  images: [Image]
+  misc: String
+  proximity: String
+  equipment: String
+}
+
+interface Apartment {
+  buildYear: String
+  rooms: Float
+  bedrooms: Int
+  bathrooms: Int
+  livingArea: String
+  features: [String]
+  vacantFrom: String
+  buildingType: String
+}
+
+interface House {
+  buildYear: String
+  floors: Int
+  rooms: Float
+  bedrooms: Int
+  bathrooms: Int
+  livingArea: String
+  usableArea: String
+  plotSize: String
+  parkingSpace: String
+  features: [String]
+  vacantFrom: String
+  buildingType: String
+}
+
+interface GeoLocation {
+  address: Address
+}
+
+interface RealEstateRent {
+  rent: PropertyRent
+}
+
+interface RealEstateSale {
+  sale: PropertySale
+}
+
+type ApartmentForRent implements Node & GeoLocation & RealEstate & RealEstateRent & Apartment {
   id: ID
   contact: Contact
   title: String
-  price: String
   description: String
   misc: String
   proximity: String
   equipment: String
   condition: String
   buildingType: String
-  photos: [Photo]
   rent: PropertyRent
+  address: Address
+  buildYear: String
+  rooms: Float
+  bedrooms: Int
+  bathrooms: Int
+  livingArea: String
+  features: [String]
+  vacantFrom: String
+  images: [Image]
+  info: QueryInfo
+}
+
+type ApartmentForSale implements Node & GeoLocation & RealEstate & RealEstateSale & Apartment {
+  id: ID
+  contact: Contact
+  title: String
+  description: String
+  misc: String
+  proximity: String
+  equipment: String
+  condition: String
+  buildingType: String
   sale: PropertySale
   address: Address
   buildYear: String
@@ -198,9 +217,34 @@ type Flat implements Property {
   bathrooms: Int
   livingArea: String
   features: [String]
-  plotSize: String
   vacantFrom: String
-  usableFloorSpace: Float
+  images: [Image]
+  info: QueryInfo
+}
+
+type HouseForRent implements Node & GeoLocation & RealEstate & RealEstateRent & House {
+  id: ID
+  contact: Contact
+  title: String
+  description: String
+  misc: String
+  proximity: String
+  equipment: String
+  condition: String
+  buildingType: String
+  rent: PropertyRent
+  address: Address
+  buildYear: String
+  floors: Int
+  rooms: Float
+  bedrooms: Int
+  bathrooms: Int
+  livingArea: String
+  usableArea: String
+  plotSize: String
+  parkingSpace: String
+  features: [String]
+  vacantFrom: String
   images: [Image]
   info: QueryInfo
 }
@@ -222,7 +266,7 @@ input PropertyFilter {
 }
 
 type Subscription {
-  propertyAdded(filter: PropertyFilter): Property
+  nodeAdded(filter: PropertyFilter): Node
 }
 
 type QueryInfo {
