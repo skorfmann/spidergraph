@@ -27,7 +27,7 @@ describe("/graphql", () => {
   jest.setTimeout(20000);
 
   const query = readFileSync(
-    resolve(process.env.PWD, "queries/immobilienscout24.gql")
+    resolve(process.env.PWD, "operations/queries/immobilienscout24.gql")
   ).toString();
 
   it("should perform query", testQuerySnapshot({ json: true, method: "POST", uri: api + "/graphql", body: { operationName: "immobilienScout24", query: query } }, { snapShotName: "immobilienscout24" }));

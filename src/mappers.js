@@ -1,38 +1,53 @@
-import logger from './logger';
-import {
-  forEachField
-} from "graphql-tools";
-import priceParser from "price-parser"
-import currencyFormatter from "currency-formatter"
+import logger from "./logger";
+import { forEachField } from "graphql-tools";
+import priceParser from "price-parser";
+import currencyFormatter from "currency-formatter";
 
 class Currency {
   constructor(valueString) {
     this.valueString = valueString;
-    console.log(this.valueString)
-    this.parsed = priceParser.parseFirst(this.valueString);
+    this.parsed = priceParser.parseFirst(this.valueString.replace(",-", ""));
     if (this.parsed === null) {
-      this.parsed = priceParser.parseFirst(this.valueString + ' EUR')
+      this.parsed = priceParser.parseFirst(this.valueString + " EUR");
     }
   }
 
   formatted() {
-    return currencyFormatter.format(this.value(), { code: this.code() || 'EUR' });
+    if (this.parsed) {
+      return currencyFormatter.format(this.value(), {
+        code: this.code() || "EUR"
+      });
+    } else {
+      return this.valueString.formatted;
+    }
   }
 
   code() {
-    return this.parsed.currencyCode.toUpperCase();
+    if (this.parsed) {
+      return this.parsed.currencyCode.toUpperCase();
+    } else {
+      return this.valueString.code;
+    }
   }
 
   value() {
-    return this.parsed.floatValue;
+    if (this.parsed) {
+      return this.parsed.floatValue;
+    } else {
+      return this.valueString.value;
+    }
   }
 
   symbol() {
-    return this.parsed.symbol;
+    if (this.parsed) {
+      return this.parsed.symbol;
+    } else {
+      return this.valueString.symbol;
+    }
   }
 }
 
-const mappers = { Currency }
+const mappers = { Currency };
 
 function addMapperFunctionsToSchema(schema, mappers) {
   forEachField(schema, (field, typeName, fieldName) => {
@@ -47,4 +62,4 @@ function addMapperFunctionsToSchema(schema, mappers) {
   });
 }
 
-export {addMapperFunctionsToSchema, mappers}
+export { addMapperFunctionsToSchema, mappers };

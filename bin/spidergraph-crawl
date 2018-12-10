@@ -1,28 +1,42 @@
-#!/usr/bin/env babel-node --
+#!/usr/bin/env babel-node
 
 import { graphql } from 'graphql'
 import loadQueryStore from "../src/queryStore.js";
-import urlLoader from "../src/browser";
+import Browser from "../src/browser";
 import schema from "../src/schema";
+// import {pubsub, CHANNEL} from "../src/pubsub";
 import program from 'commander';
 import { transports } from '../src/logger';
+import request from 'request'
 
 import { Observable } from "rxjs";
 import { take, concatMap, expand, mergeMap } from "rxjs/operators";
 
+// fully random by @BetonMAN
+const shuffleArray = arr => (
+  arr
+    .map(a => [Math.random(), a])
+    .sort((a, b) => a[0] - b[0])
+    .map(a => a[1])
+);
 
-const fetch = async (urls, queryStore, browser) => {
+
+const browser = new Browser()
+
+const fetch = async (urls, queryStore) => {
+  const loader = browser.loader()
   const results = await Promise.all(urls.map(async url => {
-    return await Promise.all(queryStore.map(async (query) => {
+    console.log({url})
+    if (url === null) return []
+
+    const page = await loader.load(url);
+    const data = await Promise.all(queryStore.map(async (query) => {
       const pattern = new RegExp(query.config.match.url);
       if (!pattern.test(url)) return;
-      const page = await browser.load(url).then(page => page);
 
       const result = await graphql(schema, query.queryString, {}, {page: page}).then((result) => {
         return result
       })
-
-      page.close();
 
       return {
         info: {
@@ -32,30 +46,54 @@ const fetch = async (urls, queryStore, browser) => {
         data: result.data
       }
     }))
+    page.close()
+    return data
   }));
+
   return [].concat(...results).filter(n => n)
 }
 
 const scrape = async (urls) => {
-  transports.console.level = 'error'
+  const { LISTING_PAGE_LIMIT, API_ENDPOINT } = process.env
+  transports.console.level = 'info'
   const queryStore = await loadQueryStore(schema);
-  const browser = await urlLoader
-  const listCrawler = Observable.fromPromise(fetch(urls, queryStore, browser))
+  await browser.init()
+  const listCrawler = Observable.fromPromise(fetch(urls, queryStore))
     .pipe(
       expand(event => {
-        const next = event[0].data.crawler.pagination.next
-        return Observable.fromPromise(fetch([next], queryStore, browser))
+        const next = event.map(e => e.data.crawler.pagination.next);
+        return Observable.fromPromise(fetch(next, queryStore))
       }
     ),
-    take(2),
-    concatMap(event => event[0].data.crawler.collection)
+    take(parseInt(LISTING_PAGE_LIMIT)),
+
+    concatMap(event => {
+      const collections = event.map(e => e.data.crawler.collection)
+      return shuffleArray([].concat(...collections))
+    })
   )
 
   const throttled = listCrawler.pipe(
-    mergeMap(event => Observable.fromPromise(fetch([event.url], queryStore, browser)), null, 1)
+    mergeMap(event => {
+      console.log('event url debugging', event)
+      if (event === null) return Observable.empty();
+      return Observable.fromPromise(fetch([event.url], queryStore))
+    }, null, 1)
   );
 
-  throttled.subscribe(link => console.log(JSON.stringify(link)));
+  throttled.subscribe(property => {
+    console.log(property)
+    request({
+        url: API_ENDPOINT,
+        method: "POST",
+        json: true,
+        body: {payload: property[0]}
+    }, function (error, response, body){
+      console.log({error});
+    });
+  },
+  (error) => { console.log('error', error)},
+  async () => { await browser.close() });
 }
 
 const list = (val) => {

@@ -1,0 +1,31 @@
+fragment currency on Currency {
+  value
+  code
+}
+
+subscription customSubscription($filter: PropertyFilter, $userName: String, $template: String) @telegram(userName: $userName, template: $template) {
+  propertyAdded(filter: $filter) {
+    __typename
+    title
+  	rent {
+      basePrice {
+        ... currency
+      }
+    }
+    info {
+      query
+      url
+    }
+  }
+}
+
+#
+# {
+#   "filter": {
+#     "maxPrice": 1000,
+#     "location": "Solaris Bank office",
+#     "radius": 10
+#   },
+#   "userName": "@immogramHH",
+#   "template": "Found ${result.title} - ${result.rent.basePrice.value}"
+# }

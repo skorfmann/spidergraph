@@ -1,14 +1,29 @@
+directive @realEstateType(code: String, mapping: JSON) on FIELD
+directive @js(code: String) on FIELD
 directive @scrape on FIELD
 directive @css(path: String!, attribute: String) on FIELD
+directive @regex(pattern: String!) on FIELD
 directive @elements(cssPath: String!) on FIELD
+directive @pluckText on FIELD
+directive @strip(text: String) on FIELD
 
 directive @testPage(url: String!) on QUERY
 directive @match(url: Regex) on QUERY
 
+directive @telegram(userName: String, template: String) on SUBSCRIPTION
+directive @daemonize on SUBSCRIPTION
+
 scalar Regex
+scalar GeolocatableString
+scalar JSON
+
+schema {
+  query: Query
+  subscription: Subscription
+}
 
 type Query {
-  realEstate: [Property]
+  node: Node
   crawler: Listing
 }
 
@@ -46,19 +61,21 @@ type Currency {
 }
 
 type Address {
+  raw: String
   street: String
+  city: String
+  country: String
+  latitude: Float
+  longitude: Float
 }
 
 type ContactData {
   email: String
 }
 
-interface Property {
+type Photo {
   title: String
-  price: String
-  rooms: Int
-  rent: PropertyRent
-  sale: PropertySale
+  url: String
 }
 
 type Phone {
@@ -74,20 +91,11 @@ type OnlineProfiles {
   website: String
 }
 
-type Company {
-  name: String
-  address: Address
-  contactData: ContactData
-}
-
 type Contact {
-  firstName: String
-  lastName: String
-  company: Company
+  name: String
+  company: String
   address: Address
-  phone: Phone
-  online: OnlineProfiles
-  businessHours: String
+  phone: String
 }
 
 type PropertyRent {
@@ -100,31 +108,145 @@ type PropertyRent {
   minContractLength: Int
   maxContractLength: Int
   unlimitedContract: Boolean
-  contact: Contact
 }
 
 type PropertySale {
-  utilities: Currency
-  heatingCosts: Currency
-  basePrice: Currency
-  totalPrice: Currency
+  price: Currency
+  commonCharge: Currency
+  parkingSpacePrice: Currency
+  commission: Float
+}
+
+type Image {
+  url: String
+  caption: String
+}
+
+interface Node {
+  id: ID
+  info: QueryInfo
+}
+
+interface RealEstate {
+  title: String
+  description: String
   contact: Contact
+  condition: String
+  images: [Image]
+  misc: String
+  proximity: String
+  equipment: String
 }
 
-type House implements Property {
-  title: String
-  price: String
-  rooms: Int
+interface Apartment {
+  buildYear: String
+  rooms: Float
+  bedrooms: Int
+  bathrooms: Int
+  livingArea: String
+  features: [String]
+  vacantFrom: String
+  buildingType: String
+}
+
+interface House {
+  buildYear: String
+  floors: Int
+  rooms: Float
+  bedrooms: Int
+  bathrooms: Int
+  livingArea: String
+  usableArea: String
+  plotSize: String
+  parkingSpace: String
+  features: [String]
+  vacantFrom: String
+  buildingType: String
+}
+
+interface GeoLocation {
+  address: Address
+}
+
+interface RealEstateRent {
   rent: PropertyRent
+}
+
+interface RealEstateSale {
   sale: PropertySale
 }
 
-type Flat implements Property {
+type ApartmentForRent implements Node & GeoLocation & RealEstate & RealEstateRent & Apartment {
+  id: ID
+  contact: Contact
   title: String
-  price: String
-  rooms: Int
+  description: String
+  misc: String
+  proximity: String
+  equipment: String
+  condition: String
+  buildingType: String
   rent: PropertyRent
+  address: Address
+  buildYear: String
+  rooms: Float
+  bedrooms: Int
+  bathrooms: Int
+  livingArea: String
+  features: [String]
+  vacantFrom: String
+  images: [Image]
+  info: QueryInfo
+}
+
+type ApartmentForSale implements Node & GeoLocation & RealEstate & RealEstateSale & Apartment {
+  id: ID
+  contact: Contact
+  title: String
+  description: String
+  misc: String
+  proximity: String
+  equipment: String
+  condition: String
+  buildingType: String
   sale: PropertySale
+  address: Address
+  buildYear: String
+  rooms: Float
+  bedrooms: Int
+  bathrooms: Int
+  livingArea: String
+  features: [String]
+  vacantFrom: String
+  images: [Image]
+  info: QueryInfo
+}
+
+type HouseForRent implements Node & GeoLocation & RealEstate & RealEstateRent & House {
+  id: ID
+  contact: Contact
+  title: String
+  description: String
+  misc: String
+  proximity: String
+  equipment: String
+  condition: String
+  buildingType: String
+  rent: PropertyRent
+  address: Address
+  buildYear: String
+  floors: Int
+  rooms: Float
+  bedrooms: Int
+  bathrooms: Int
+  livingArea: String
+  usableArea: String
+  plotSize: String
+  parkingSpace: String
+  features: [String]
+  vacantFrom: String
+  images: [Image]
+  info: QueryInfo
 }
 
 enum RentInterval {
@@ -134,4 +256,20 @@ enum RentInterval {
   BIWEEKLY
   MONTHLY
   YEARLY
+}
+
+input PropertyFilter {
+  maxPrice: Int
+  minPrice: Int
+  location: GeolocatableString
+  radius: Int
+}
+
+type Subscription {
+  nodeAdded(filter: PropertyFilter): Node
+}
+
+type QueryInfo {
+  query: String
+  url: String
 }

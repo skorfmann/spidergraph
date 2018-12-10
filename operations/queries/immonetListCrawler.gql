@@ -1,0 +1,15 @@
+query immonetListCrawler
+@match(url: "immonet.de/immobiliensuche/sel.do")
+@testPage(url: "https://www.immonet.de/immobiliensuche/sel.do?&sortby=0&suchart=1&objecttype=1&marketingtype=2&parentcat=1&locationname=Hamburg")
+  {
+  crawler {
+    collection @elements(cssPath: "#result-list-stage > .col-xs-12") {
+      title @css(path: "a.text-default")
+      url @css(path: "a.text-default", attribute: "href")
+    }
+    pagination {
+      next @css(path: ".pagination-wrapper + a", attribute: "href")
+      previous @css(path: "a.col-sm-3.col-xs-1.pull-left", attribute: "href")
+    }
+  }
+}

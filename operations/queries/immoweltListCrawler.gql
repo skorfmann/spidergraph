@@ -1,0 +1,15 @@
+query immoweltListCrawler
+@match(url: "immowelt.de/liste")
+@testPage(url: "https://www.immowelt.de/liste/hamburg/haeuser/mieten?sort=createdate%2Bdesc")
+  {
+  crawler {
+    collection @elements(cssPath: ".iw_list_content > .listitem_wrap") {
+      title @css(path: "h2")
+      url @css(path: ".listitem > a", attribute: "href")
+    }
+    pagination {
+      next @css(path: "a#nlbPlus", attribute: "href")
+      previous @css(path: "#pnlPaging a.margin_right_10", attribute: "href")
+    }
+  }
+}
