@@ -19,7 +19,8 @@
     "build": "npm run clean && mkdir -p dist && babel src -s -D -d dist",
     "test": "jest --watch",
     "jest:integration": "jest test/integration.test.js",
-    "lint": "esw -w src test"
+    "lint": "esw -w src test",
+    "gen": "graphql-schema-typescript generate-ts ./schema.graphql --output src/schemas.d.ts"
   },
   "keywords": [
     "express",
@@ -73,6 +74,7 @@
     "winston": "^2.4.1"
   },
   "devDependencies": {
+    "@pongsatt/graphql-schema-typescript": "^1.0.25",
     "babel-cli": "^6.26.0",
     "babel-eslint": "^8.0.3",
     "babel-jest": "^21.2.0",
