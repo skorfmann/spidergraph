@@ -1,0 +1,275 @@
+directive @realEstateType(code: String, mapping: JSON) on FIELD
+directive @js(code: String) on FIELD
+directive @scrape on FIELD
+directive @css(path: String!, attribute: String) on FIELD
+directive @regex(pattern: String!) on FIELD
+directive @elements(cssPath: String!) on FIELD
+directive @pluckText on FIELD
+directive @strip(text: String) on FIELD
+
+directive @testPage(url: String!) on QUERY
+directive @match(url: Regex) on QUERY
+
+directive @telegram(userName: String, template: String) on SUBSCRIPTION
+directive @daemonize on SUBSCRIPTION
+
+scalar Regex
+scalar GeolocatableString
+scalar JSON
+
+schema {
+  query: Query
+  subscription: Subscription
+}
+
+type Query {
+  node: Node
+  crawler: Listing
+}
+
+scalar Url
+
+type Pagination {
+  next: Url
+  previous: Url
+  first: Url
+  last: Url
+  pages: [Url]
+  current: Url
+}
+
+type ListItem {
+  title: String
+  url: Url
+}
+
+type Listing {
+  pagination: Pagination
+  collection: [ListItem]
+}
+
+enum CurrencyCode {
+  EUR
+  USD
+}
+
+type Currency {
+  value: Float
+  code: CurrencyCode!
+  symbol: String
+  formatted: String
+}
+
+type Address {
+  raw: String
+  street: String
+  city: String
+  country: String
+  latitude: Float
+  longitude: Float
+}
+
+type ContactData {
+  email: String
+}
+
+type Photo {
+  title: String
+  url: String
+}
+
+type Phone {
+  phone: String
+  mobile: String
+  fax: String
+}
+
+type OnlineProfiles {
+  email: String
+  twitter: String
+  facebook: String
+  website: String
+}
+
+type Contact {
+  name: String
+  company: String
+  address: Address
+  phone: String
+}
+
+type PropertyRent {
+  utilities: Currency
+  heatingCosts: Currency
+  basePrice: Currency
+  totalPrice: Currency
+  deposit: Currency
+  interval: RentInterval
+  minContractLength: Int
+  maxContractLength: Int
+  unlimitedContract: Boolean
+}
+
+type PropertySale {
+  price: Currency
+  commonCharge: Currency
+  parkingSpacePrice: Currency
+  commission: Float
+}
+
+type Image {
+  url: String
+  caption: String
+}
+
+interface Node {
+  id: ID
+  info: QueryInfo
+}
+
+interface RealEstate {
+  title: String
+  description: String
+  contact: Contact
+  condition: String
+  images: [Image]
+  misc: String
+  proximity: String
+  equipment: String
+}
+
+interface Apartment {
+  buildYear: String
+  rooms: Float
+  bedrooms: Int
+  bathrooms: Int
+  livingArea: String
+  features: [String]
+  vacantFrom: String
+  buildingType: String
+}
+
+interface House {
+  buildYear: String
+  floors: Int
+  rooms: Float
+  bedrooms: Int
+  bathrooms: Int
+  livingArea: String
+  usableArea: String
+  plotSize: String
+  parkingSpace: String
+  features: [String]
+  vacantFrom: String
+  buildingType: String
+}
+
+interface GeoLocation {
+  address: Address
+}
+
+interface RealEstateRent {
+  rent: PropertyRent
+}
+
+interface RealEstateSale {
+  sale: PropertySale
+}
+
+type ApartmentForRent implements Node & GeoLocation & RealEstate & RealEstateRent & Apartment {
+  id: ID
+  contact: Contact
+  title: String
+  description: String
+  misc: String
+  proximity: String
+  equipment: String
+  condition: String
+  buildingType: String
+  rent: PropertyRent
+  address: Address
+  buildYear: String
+  rooms: Float
+  bedrooms: Int
+  bathrooms: Int
+  livingArea: String
+  features: [String]
+  vacantFrom: String
+  images: [Image]
+  info: QueryInfo
+}
+
+type ApartmentForSale implements Node & GeoLocation & RealEstate & RealEstateSale & Apartment {
+  id: ID
+  contact: Contact
+  title: String
+  description: String
+  misc: String
+  proximity: String
+  equipment: String
+  condition: String
+  buildingType: String
+  sale: PropertySale
+  address: Address
+  buildYear: String
+  rooms: Float
+  bedrooms: Int
+  bathrooms: Int
+  livingArea: String
+  features: [String]
+  vacantFrom: String
+  images: [Image]
+  info: QueryInfo
+}
+
+type HouseForRent implements Node & GeoLocation & RealEstate & RealEstateRent & House {
+  id: ID
+  contact: Contact
+  title: String
+  description: String
+  misc: String
+  proximity: String
+  equipment: String
+  condition: String
+  buildingType: String
+  rent: PropertyRent
+  address: Address
+  buildYear: String
+  floors: Int
+  rooms: Float
+  bedrooms: Int
+  bathrooms: Int
+  livingArea: String
+  usableArea: String
+  plotSize: String
+  parkingSpace: String
+  features: [String]
+  vacantFrom: String
+  images: [Image]
+  info: QueryInfo
+}
+
+enum RentInterval {
+  HOURLY
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  YEARLY
+}
+
+input PropertyFilter {
+  maxPrice: Int
+  minPrice: Int
+  location: GeolocatableString
+  radius: Int
+}
+
+type Subscription {
+  nodeAdded(filter: PropertyFilter): Node
+}
+
+type QueryInfo {
+  query: String
+  url: String
+}
